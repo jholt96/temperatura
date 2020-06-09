@@ -1,4 +1,4 @@
-package ibm.edge.edgekafkademo;
+package edge.temperatura.temperatura;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class KafkaConsumerConfig {
     private final String USERNAME = "token";
     private final String API_KEY = "rrBwJuZBp2S_xLrF2qk7yQ2Qs1CupiTbAe4KX4915xlH";
     private final String bootstrapServerAddress = "es1-ibm-es-proxy-route-bootstrap-eventstreams.icp4idemo-056b58fcdc9e11e6c74d8a9393b26a0f-0000.us-east.containers.appdomain.cloud:443";
-    private String consumerGroupId = APP_NAME;
+    private String consumerGroupId = APP_NAME + '2';
 
     @Bean
     public Map<String,Object> consumerConfigs(){
@@ -50,6 +50,8 @@ public class KafkaConsumerConfig {
 
         return props;
     }
+
+
     @Bean
     public ConsumerFactory<String, String> consumerFactory(){
     return new DefaultKafkaConsumerFactory<>(consumerConfigs());

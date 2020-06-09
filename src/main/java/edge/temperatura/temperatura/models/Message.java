@@ -1,4 +1,4 @@
-package ibm.edge.edgekafkademo;
+package edge.temperatura.temperatura.models;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
