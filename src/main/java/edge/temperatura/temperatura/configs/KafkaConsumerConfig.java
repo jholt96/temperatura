@@ -1,4 +1,4 @@
-package edge.temperatura.temperatura;
+package edge.temperatura.temperatura.configs;
 
 import java.util.HashMap;
 import java.util.Map;

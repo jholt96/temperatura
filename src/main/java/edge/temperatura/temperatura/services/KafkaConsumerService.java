@@ -1,4 +1,4 @@
-package edge.temperatura.temperatura;
+package edge.temperatura.temperatura.services;
 
 import com.google.gson.Gson;
 

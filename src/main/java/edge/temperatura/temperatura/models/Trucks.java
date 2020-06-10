@@ -4,19 +4,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Document(collection = "trucks" )
+@Document(collection = "trucks")
 public class Trucks {
 
     @Id
     @Getter
     @Setter
-    private String id;
+    private ObjectId _id;
 
     @Getter
     @Setter    
@@ -28,15 +29,13 @@ public class Trucks {
     
     @Getter
     @Setter
-    private Map<String,Date> alerts = new HashMap<>();
+    private Map<String,String> alerts = new HashMap<>();
 
     public Trucks(){}
 
-    public Trucks(String id, String hostname, String env){
-        this.id = id;
+    public Trucks(ObjectId id, String hostname, String env) {
+        this._id = id;
         this.hostname = hostname;
         this.env = env;
     }
-
-    
 }

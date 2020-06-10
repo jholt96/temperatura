@@ -3,13 +3,26 @@ package edge.temperatura.temperatura.models;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Component
 public class Message {
     
+    @Getter
+    @Setter
     private String timestamp;
+    @Getter
+    @Setter
     private double temperature;
+    @Getter
+    @Setter
     private double humidity;
+    @Getter
+    @Setter
     private String hostname;
+    @Getter
+    @Setter
     private String env;
     
     @Autowired
@@ -28,17 +41,6 @@ public class Message {
         this.env = env;
     }
 
-    public String getTime(){return timestamp; }
-    public String getDeviceName(){return hostname;}
-    public double getTemp(){return temperature;}
-    public double getHumidity(){return humidity;}
-    public String getEnv(){return env;}
-
-    public void setTime(String newTime){this.timestamp = newTime; }
-    public void setDeviceName(String newName){this.hostname = newName;}
-    public void setTemp(double newTemp){this.temperature = newTemp;}
-    public void setHumidity(double newHumidity){this.humidity = newHumidity;}
-    public void setEnv(String newEnv){this.env = newEnv;}
 
     public String toJson(){
         return "{\"timestamp\": \"" + timestamp + "\", \""
