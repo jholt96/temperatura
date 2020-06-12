@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -24,11 +25,20 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 @Configuration
 public class KafkaConsumerConfig {
 
-    private final String APP_NAME = "edgeconsumer";
-    private final String USERNAME = "token";
-    private final String API_KEY = "rrBwJuZBp2S_xLrF2qk7yQ2Qs1CupiTbAe4KX4915xlH";
-    private final String bootstrapServerAddress = "es1-ibm-es-proxy-route-bootstrap-eventstreams.icp4idemo-056b58fcdc9e11e6c74d8a9393b26a0f-0000.us-east.containers.appdomain.cloud:443";
-    private String consumerGroupId = APP_NAME + '2';
+    @Value("${APP_NAME}")
+    private String APP_NAME;
+
+    @Value("${USERNAME}")
+    private String USERNAME;
+
+    @Value("${API_KEY}")
+    private String API_KEY;
+
+    @Value("${bootstrapServerAddress}")
+    private String bootstrapServerAddress;
+
+    @Value("${consumerGroupId}")
+    private String consumerGroupId;
 
 
 

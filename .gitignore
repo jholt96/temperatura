@@ -33,3 +33,4 @@ build/
 *.jks
 
 *.properties
+src/main/resources/application.properties

@@ -6,6 +6,7 @@ import edge.temperatura.temperatura.models.Alerts;
 import edge.temperatura.temperatura.models.Trucks;
 import edge.temperatura.temperatura.repositories.AlertRepository;
 import edge.temperatura.temperatura.repositories.TruckRepository;
+import edge.temperatura.temperatura.services.KafkaConsumerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,9 @@ public class TrucksController {
 
     @Autowired
     private AlertRepository alertRepository;
+
+    @Autowired
+    KafkaConsumerService kafkaConsumerService;
 
     private List<Alerts> arrList;
 
@@ -65,6 +69,8 @@ public class TrucksController {
             });
             t.clearAlerts();
             truckRepository.save(t);
+
+            kafkaConsumerService.resetTrucksMap(t);
         });
 
         return arrList;

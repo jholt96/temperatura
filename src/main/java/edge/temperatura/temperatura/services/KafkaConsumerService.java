@@ -7,8 +7,10 @@ import javax.annotation.PostConstruct;
 
 import com.google.gson.Gson;
 
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,13 +19,10 @@ import edge.temperatura.temperatura.models.Message;
 import edge.temperatura.temperatura.models.Trucks;
 
 @Service
-public class KafkaConsumerService{
+public class KafkaConsumerService implements ConsumerSeekAware{
     
     @Autowired
     private SimpMessagingTemplate template;
-
-    @Autowired
-    private Message newMessage;
 
     @Autowired
     private TrucksServiceImpl trucksServiceImpl;
@@ -31,7 +30,8 @@ public class KafkaConsumerService{
 
     private Map<String,Trucks> trucks;
     private Map<String,Short> alertCount = new HashMap<>();
-    private final short messageThreshold = 25;
+    private final short messageThreshold = 24;
+    private Message newMessage;
 
 
     //Initialize the hashmap with the existing trucks in the db collection
@@ -41,6 +41,14 @@ public class KafkaConsumerService{
         trucks = trucksServiceImpl.getMapOfTrucks();
     }
 
+    @Override
+    public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
+        assignments.keySet().forEach(tp -> callback.seekToEnd(tp.topic(), tp.partition()));
+    }
+
+    public void resetTrucksMap(Trucks truck){
+        trucks.put(truck.getHostname(), truck);
+    }
 
     @KafkaListener(topics="edgetemp")
     public void consume(@Payload String message) {
@@ -62,18 +70,23 @@ public class KafkaConsumerService{
                     if(alertCount.get(newMessage.getHostname()) == messageThreshold){
                         //create an alert and send it
                         truck = trucksServiceImpl.createAlert(newMessage, truck);
-                        trucks.put(truck.getHostname(), truck);
+                        //add the updated truck to the hashmap
+                        //trucks.put(truck.getHostname(), truck);
                         // then delete it to restart the count
                         alertCount.put(newMessage.getHostname(), (short) 0);
+                                             
 
                     }else{
                         //keep it on the watch list and increment
                         alertCount.put(newMessage.getHostname(), (short) (alertCount.get(newMessage.getHostname()) + 1));
                     }
                 }else{
+                    //else it is below the threshold again so reset its number
                     alertCount.put(newMessage.getHostname(), (short) 0);
                 }
 
+            }else if(alertCount.containsKey(newMessage.getHostname())){
+                    alertCount.put(newMessage.getHostname(), (short) 0);
             }
         }else{
             Trucks truck = trucksServiceImpl.createTruck(newMessage);
@@ -84,6 +97,7 @@ public class KafkaConsumerService{
         //now pass the kafka message on to the frontend
         
         template.convertAndSend("/topic/edge", newMessage.toJson());
+
         System.out.print(newMessage.toJson());
     }
 }

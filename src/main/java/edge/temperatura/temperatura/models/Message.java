@@ -1,28 +1,20 @@
 package edge.temperatura.temperatura.models;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Component
 public class Message {
     
     private String timestamp;
-
     private double temperature;
-
     private double humidity;
-
     private String hostname;
-
     private String env;
     private double tempThreshold; 
+    private boolean alert;
     
-    @Autowired
     public Message(){
         this.temperature = 0;
         this.tempThreshold = 82;
@@ -30,6 +22,7 @@ public class Message {
         this.timestamp = "";
         this.hostname = "";
         this.env = "";
+        this.alert = false;
     }
     public Message(double temp, double humidity, String timestamp, String deviceName, String env, double tempThreshold){
         this.temperature = temp;
@@ -38,6 +31,7 @@ public class Message {
         this.hostname = deviceName;
         this.env = env;
         this.tempThreshold = tempThreshold;
+        this.alert = false;
     }
 
 
@@ -46,7 +40,9 @@ public class Message {
         "\"hostname\": \"" + hostname + "\"," +
         "\"temperature\": \"" + temperature + "\"," +
         "\"env\": \"" + env + "\","+
-        "\"humidity\": \" " + humidity + "\"}";
+        "\"humidity\": \" " + humidity + "\"," +
+        "\"tempThreshold\": \" " + tempThreshold + "\"," +
+        "\"alert\": \" " + alert + "\"}";
     }
 
 

@@ -25,13 +25,18 @@ public class Trucks {
 
 
     public Trucks(){
-
+        this._id = ObjectId.get();
+        this.hostname = "";
+        this.alertsId = new ArrayList<>();
+        this.env = "";
     }
 
     public Trucks(String hostname, String env) {
         this._id = ObjectId.get();
         this.hostname = hostname;
         this.env = env;
+        this.alertsId = new ArrayList<>();
+
     }
 
 

@@ -35,24 +35,25 @@ public class TrucksServiceImpl {
 
         return trucks;
     }
-
-    public Trucks createAlert(Message message, Trucks truck){
-        
+    //passes by reference and changes the message and truck
+    public Trucks createAlert(Message message, final Trucks truck){
+        Trucks tempTruck = truck;
         Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), message.getTempThreshold());
 
-        truck.addAlert(newAlert.get_id());
-        alertRepository.save(newAlert);
-        truckRepository.save(truck);
+        tempTruck.addAlert(newAlert.get_id());
+        message.setAlert(true);
 
-        return truck;
+        alertRepository.save(newAlert);
+        truckRepository.save(tempTruck);
+
+        return tempTruck;
     }
 
-    public Trucks createTruck(Message newMessage){
+    public Trucks createTruck(final Message newMessage){
 
         Trucks truck = new Trucks(newMessage.getHostname(), newMessage.getEnv());
         truckRepository.save(truck);
 
         return truck;
     }
-    
 }
