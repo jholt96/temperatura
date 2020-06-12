@@ -1,5 +1,10 @@
 package edge.temperatura.temperatura.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Message;
+import edge.temperatura.temperatura.models.Trucks;
 
 @Service
 public class KafkaConsumerService{
@@ -19,19 +25,65 @@ public class KafkaConsumerService{
     @Autowired
     private Message newMessage;
 
+    @Autowired
+    private TrucksServiceImpl trucksServiceImpl;
+
+
+    private Map<String,Trucks> trucks;
+    private Map<String,Short> alertCount = new HashMap<>();
+    private final short messageThreshold = 25;
+
+
+    //Initialize the hashmap with the existing trucks in the db collection
+    @PostConstruct
+    public void init() {
+
+        trucks = trucksServiceImpl.getMapOfTrucks();
+    }
+
 
     @KafkaListener(topics="edgetemp")
     public void consume(@Payload String message) {
 
         Gson convert = new Gson();
+
         newMessage = convert.fromJson(message, Message.class);
 
+        //if the truck exists then test if it is past its threshold
+        if(trucks.containsKey(newMessage.getHostname())){
+
+            Trucks truck = trucks.get(newMessage.getHostname());
+            
+            if (newMessage.getTemperature() >= newMessage.getTempThreshold()){
+
+                //if its in the problem child map
+                if(alertCount.containsKey(newMessage.getHostname())){
+                    //if it has 10 messages where it exceeded the threshold
+                    if(alertCount.get(newMessage.getHostname()) == messageThreshold){
+                        //create an alert and send it
+                        truck = trucksServiceImpl.createAlert(newMessage, truck);
+                        trucks.put(truck.getHostname(), truck);
+                        // then delete it to restart the count
+                        alertCount.put(newMessage.getHostname(), (short) 0);
+
+                    }else{
+                        //keep it on the watch list and increment
+                        alertCount.put(newMessage.getHostname(), (short) (alertCount.get(newMessage.getHostname()) + 1));
+                    }
+                }else{
+                    alertCount.put(newMessage.getHostname(), (short) 0);
+                }
+
+            }
+        }else{
+            Trucks truck = trucksServiceImpl.createTruck(newMessage);
+
+            trucks.put(truck.getHostname(), truck);
+        }
+
+        //now pass the kafka message on to the frontend
+        
+        template.convertAndSend("/topic/edge", newMessage.toJson());
         System.out.print(newMessage.toJson());
-
-        
-
-        //now have a Message object. 
-        
-        template.convertAndSend("/topic/edge", message);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 
 
+
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
@@ -28,6 +29,8 @@ public class KafkaConsumerConfig {
     private final String API_KEY = "rrBwJuZBp2S_xLrF2qk7yQ2Qs1CupiTbAe4KX4915xlH";
     private final String bootstrapServerAddress = "es1-ibm-es-proxy-route-bootstrap-eventstreams.icp4idemo-056b58fcdc9e11e6c74d8a9393b26a0f-0000.us-east.containers.appdomain.cloud:443";
     private String consumerGroupId = APP_NAME + '2';
+
+
 
     @Bean
     public Map<String,Object> consumerConfigs(){
@@ -62,7 +65,6 @@ public class KafkaConsumerConfig {
 
         ConcurrentKafkaListenerContainerFactory<String, String> factory= new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(consumerFactory());
-        
         return factory;
     }
 }

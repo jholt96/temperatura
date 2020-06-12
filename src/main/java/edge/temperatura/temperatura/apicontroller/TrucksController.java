@@ -2,26 +2,32 @@ package edge.temperatura.temperatura.apicontroller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import edge.temperatura.temperatura.models.Alerts;
 import edge.temperatura.temperatura.models.Trucks;
+import edge.temperatura.temperatura.repositories.AlertRepository;
 import edge.temperatura.temperatura.repositories.TruckRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
-@RequestMapping("/trucks")
+@RequestMapping("/api/v1/trucks")
 public class TrucksController {
 
     @Autowired
     private TruckRepository truckRepository;
+
+    @Autowired
+    private AlertRepository alertRepository;
+
+    private List<Alerts> arrList;
 
     @GetMapping(value = "/")
     public List<Trucks> getAllTrucks() {
@@ -32,11 +38,35 @@ public class TrucksController {
     public Optional<Trucks> getById(@PathVariable("hostname") String hostname) {
         return truckRepository.findByhostname(hostname);
     }
-    @PostMapping(value = "/")
-    public Trucks setById(@RequestBody Trucks truck) {
-        truck.set_id(ObjectId.get());
-        return truckRepository.save(truck);
-    }    
     
-    
+    @GetMapping(value = "/{hostname}/alerts")
+    public List<Alerts> getAlerts(@PathVariable("hostname") String hostname) {
+        Optional<Trucks> truck = truckRepository.findByhostname(hostname);
+
+        this.arrList = new ArrayList<Alerts>();
+
+		truck.ifPresent(t -> {
+            this.arrList = (List<Alerts>) alertRepository.findAllById(t.getIterableAlertsIds());
+        });
+
+        return this.arrList;
+    }
+
+    @DeleteMapping(value = "/{hostname}/alerts/clear")
+    public List<Alerts> clearAlerts(@PathVariable("hostname") String hostname){
+
+        Optional<Trucks> truck = truckRepository.findByhostname(hostname);
+
+		truck.ifPresent(t -> {
+            Iterable<Alerts> itrAlerts= alertRepository.findAllById(t.getIterableAlertsIds());
+
+            itrAlerts.forEach(alert -> {
+                alertRepository.delete(alert);
+            });
+            t.clearAlerts();
+            truckRepository.save(t);
+        });
+
+        return arrList;
+    }
 }

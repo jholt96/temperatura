@@ -1,9 +1,7 @@
 package edge.temperatura.temperatura.models;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,31 +9,41 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 @Document(collection = "trucks")
 public class Trucks {
 
     @Id
-    @Getter
-    @Setter
     private ObjectId _id;
 
-    @Getter
-    @Setter    
     private String hostname;
 
-    @Getter
-    @Setter   
     private String env;
     
-    @Getter
-    @Setter
-    private Map<String,String> alerts = new HashMap<>();
+    private List<String> alertsId = new ArrayList<>();
 
-    public Trucks(){}
 
-    public Trucks(ObjectId id, String hostname, String env) {
-        this._id = id;
+    public Trucks(){
+
+    }
+
+    public Trucks(String hostname, String env) {
+        this._id = ObjectId.get();
         this.hostname = hostname;
         this.env = env;
+    }
+
+
+    public void addAlert(ObjectId alertId){
+
+        alertsId.add(alertId.toString());
+    }
+
+    public Iterable<String> getIterableAlertsIds() {
+        return alertsId;
+    }
+    public void clearAlerts(){
+        alertsId.clear();
     }
 }
