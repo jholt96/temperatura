@@ -47,6 +47,7 @@ public class KafkaConsumerConfig {
 
         Map<String, Object> props = new HashMap<>();
 
+        //Can Change String deserializer to json
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServerAddress);
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
