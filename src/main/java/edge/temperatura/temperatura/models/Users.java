@@ -4,14 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Document(collection = "user")
-public class User {
+public class Users {
 
     @Id
     @Getter
@@ -28,15 +27,15 @@ public class User {
     
     @Getter
     @Setter
-    @DBRef
-    private Set<Trucks> trucks = new HashSet<>();
+    private Set<Trucks> trucks;
 
-    public User() {
+    public Users() {
     }
   
-    public User(String username, String email, String password) {
+    public Users(String username, String email, String password) {
       this.email = email;
       this.password = password;
+      this.trucks = new HashSet<>();
     }
   
 
