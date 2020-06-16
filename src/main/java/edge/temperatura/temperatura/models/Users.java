@@ -3,6 +3,7 @@ package edge.temperatura.temperatura.models;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,34 +11,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Document(collection = "user")
+@Getter
+@Setter
 public class Users {
 
     @Id
-    @Getter
-    @Setter
-    private String id;
-
-    @Getter
-    @Setter    
+    private ObjectId _id;
+ 
     private String email;
-
-    @Getter
-    @Setter   
+    private String username;
+ 
     private String password;
-    
-    @Getter
-    @Setter
-    private Set<Trucks> trucks;
 
-    public Users() {
-    }
+    private Set<String> favoriteTrucksIds;
+    private String role;
   
-    public Users(String username, String email, String password) {
-      this.email = email;
+    public Users(String username, String email, String password, String role) {
+      this._id = ObjectId.get();
+      this.username = this.email = email;
       this.password = password;
-      this.trucks = new HashSet<>();
+      this.favoriteTrucksIds = new HashSet<>();
+      this.role = role;
     }
-  
-
-    
 }

@@ -16,7 +16,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
-// @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final PasswordEncoder passwordEncoder;
@@ -31,12 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		http
-				.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-				.and()
+				.csrf().disable()
 				.authorizeRequests()
-				.antMatchers("/management/api/**").hasRole("ADMIN")
-				.antMatchers("/api/**").hasRole("ADMIN")
-				.antMatchers("/api/**").hasRole("MONITOR")
+				.antMatchers("/management/api/**").hasAnyRole("ADMIN","VIEWER")
+				.antMatchers("/api/**").hasAnyRole("ADMIN","VIEWER")
 				.anyRequest().authenticated()
 				.and()
 				.httpBasic();
@@ -49,13 +47,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 								.username("jish")
 								.password(passwordEncoder.encode("password"))
 								.roles("ADMIN")
-								.authorities("ADMIN")
 								.build();
 
 		UserDetails marissaUser = User.builder()
 								.username("marissa")
 								.password(passwordEncoder.encode("password"))
-								.roles("MONITOR")
+								.roles("VIEWER")
 								.build();
 
 		return new InMemoryUserDetailsManager(jishUser, marissaUser);
