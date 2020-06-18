@@ -1,3 +1,5 @@
+//TODO JWT, persist remember me token, error handling, login, clean up. 
+
 package edge.temperatura.temperatura.security;
 
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.csrf().disable()
 				.authorizeRequests()
 				.antMatchers("/management/api/**").permitAll()
-				.antMatchers("/api/**").hasAnyAuthority("ADMIN","VIEWER")
+				.antMatchers("/api/**").hasAnyRole("ADMIN","VIEWER")
 				.anyRequest().authenticated()
 				.and().formLogin().defaultSuccessUrl("/api/v1/trucks/", true)
 				.and().rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(7)).key("asasdflkjsHndgg4132156sdSD")

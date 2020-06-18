@@ -4,11 +4,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edge.temperatura.temperatura.models.Alerts;
 import edge.temperatura.temperatura.models.Trucks;
-import edge.temperatura.temperatura.repositories.AlertRepository;
-import edge.temperatura.temperatura.repositories.TruckRepository;
-import edge.temperatura.temperatura.services.KafkaConsumerService;
+import edge.temperatura.temperatura.services.TrucksServiceImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,60 +21,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class TrucksController {
 
     @Autowired
-    private TruckRepository truckRepository;
-
-    @Autowired
-    private AlertRepository alertRepository;
-
-    @Autowired
-    KafkaConsumerService kafkaConsumerService;
-
-    private List<Alerts> arrList;
+    TrucksServiceImpl trucksServiceImpl;
 
     @GetMapping(value = "/")
-    @Autowired
     //@PreAuthorize("hasRole('ADMIN')")
     public List<Trucks> getAllTrucks() {
-        return truckRepository.findAll();
+        return trucksServiceImpl.getAllTrucks();
     }
 
     @GetMapping(value = "/{hostname}")
     public Optional<Trucks> getById(@PathVariable("hostname") String hostname) {
-        return truckRepository.findByhostname(hostname);
+
+        return trucksServiceImpl.getById(hostname);
     }
     
     @GetMapping(value = "/{hostname}/alerts")
     public List<Alerts> getAlerts(@PathVariable("hostname") String hostname) {
-        
-        Optional<Trucks> truck = truckRepository.findByhostname(hostname);
-
-        this.arrList = new ArrayList<Alerts>();
-
-		truck.ifPresent(t -> {
-            this.arrList = (List<Alerts>) alertRepository.findAllById(t.getIterableAlertsIds());
-        });
-
-        return this.arrList;
+        return trucksServiceImpl.getAlerts(hostname);
     }
 
     @DeleteMapping(value = "/{hostname}/alerts/clear")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public List<Alerts> clearAlerts(@PathVariable("hostname") String hostname){
-
-        Optional<Trucks> truck = truckRepository.findByhostname(hostname);
-
-		truck.ifPresent(t -> {
-            Iterable<Alerts> itrAlerts= alertRepository.findAllById(t.getIterableAlertsIds());
-
-            itrAlerts.forEach(alert -> {
-                alertRepository.delete(alert);
-            });
-            t.clearAlerts();
-            truckRepository.save(t);
-
-            kafkaConsumerService.resetTrucksMap(t);
-        });
-
-        return arrList;
+    public void clearAlerts(@PathVariable("hostname") String hostname){
+        trucksServiceImpl.clearAlerts(hostname);
     }
 }

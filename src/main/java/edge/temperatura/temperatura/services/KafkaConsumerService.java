@@ -15,8 +15,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import edge.temperatura.temperatura.models.Message;
 import edge.temperatura.temperatura.models.Trucks;
+import edge.temperatura.temperatura.payloads.Message;
 
 @Service
 public class KafkaConsumerService implements ConsumerSeekAware{
@@ -28,7 +28,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     private TrucksServiceImpl trucksServiceImpl;
 
 
-    private Map<String,Trucks> trucks;
+    //private Map<String,Trucks> trucks;
     private Map<String,Short> alertCount = new HashMap<>();
     private final short messageThreshold = 24;
     private Message newMessage;
@@ -38,16 +38,12 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     @PostConstruct
     public void init() {
 
-        trucks = trucksServiceImpl.getMapOfTrucks();
+        trucksServiceImpl.createMapOfTrucks();
     }
 
     @Override
     public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
         assignments.keySet().forEach(tp -> callback.seekToEnd(tp.topic(), tp.partition()));
-    }
-
-    public void resetTrucksMap(Trucks truck){
-        trucks.put(truck.getHostname(), truck);
     }
 
     @KafkaListener(topics="edgetemp")
@@ -58,9 +54,9 @@ public class KafkaConsumerService implements ConsumerSeekAware{
         newMessage = convert.fromJson(message, Message.class);
 
         //if the truck exists then test if it is past its threshold
-        if(trucks.containsKey(newMessage.getHostname())){
+        if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){
 
-            Trucks truck = trucks.get(newMessage.getHostname());
+            Trucks truck = trucksServiceImpl.getOneTruckFromMapOfTrucks(newMessage.getHostname());
             
             if (newMessage.getTemperature() >= newMessage.getTempThreshold()){
 
@@ -91,7 +87,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
         }else{
             Trucks truck = trucksServiceImpl.createTruck(newMessage);
 
-            trucks.put(truck.getHostname(), truck);
+            trucksServiceImpl.addToMapOfTrucks(truck);
         }
 
         //now pass the kafka message on to the frontend
