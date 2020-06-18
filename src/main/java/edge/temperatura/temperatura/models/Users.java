@@ -24,13 +24,13 @@ public class Users {
     private String password;
 
     private Set<String> favoriteTrucksIds;
-    private String role;
+    private Set<UserRole> roles;
   
-    public Users(String username, String email, String password, String role) {
+    public Users(String username, String email, String password) {
       this._id = ObjectId.get();
       this.username = this.email = email;
       this.password = password;
       this.favoriteTrucksIds = new HashSet<>();
-      this.role = role;
+      this.roles = new HashSet<>();
     }
 }

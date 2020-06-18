@@ -35,6 +35,8 @@ public class TrucksController {
     private List<Alerts> arrList;
 
     @GetMapping(value = "/")
+    @Autowired
+    //@PreAuthorize("hasRole('ADMIN')")
     public List<Trucks> getAllTrucks() {
         return truckRepository.findAll();
     }
@@ -46,6 +48,7 @@ public class TrucksController {
     
     @GetMapping(value = "/{hostname}/alerts")
     public List<Alerts> getAlerts(@PathVariable("hostname") String hostname) {
+        
         Optional<Trucks> truck = truckRepository.findByhostname(hostname);
 
         this.arrList = new ArrayList<Alerts>();
@@ -58,8 +61,8 @@ public class TrucksController {
     }
 
     @DeleteMapping(value = "/{hostname}/alerts/clear")
-    @PreAuthorize("hasRole('ADMIN')")
-        public List<Alerts> clearAlerts(@PathVariable("hostname") String hostname){
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<Alerts> clearAlerts(@PathVariable("hostname") String hostname){
 
         Optional<Trucks> truck = truckRepository.findByhostname(hostname);
 
