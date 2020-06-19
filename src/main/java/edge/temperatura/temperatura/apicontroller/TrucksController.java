@@ -24,7 +24,6 @@ public class TrucksController {
     TrucksServiceImpl trucksServiceImpl;
 
     @GetMapping(value = "/")
-    //@PreAuthorize("hasRole('ADMIN')")
     public List<Trucks> getAllTrucks() {
         return trucksServiceImpl.getAllTrucks();
     }
@@ -41,7 +40,7 @@ public class TrucksController {
     }
 
     @DeleteMapping(value = "/{hostname}/alerts/clear")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public void clearAlerts(@PathVariable("hostname") String hostname){
         trucksServiceImpl.clearAlerts(hostname);
     }

@@ -15,11 +15,15 @@
 	<description>Spring Boot backend for edge temp monitor</description>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.0</version>
+		</dependency>
 		<dependency>
   			<groupId>org.springframework.boot</groupId>
   			<artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -75,7 +79,7 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
-			<version>0.9.1</version>
+			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
