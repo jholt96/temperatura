@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Message {
+public class KafkaMessage {
     
     private String timestamp;
     private double temperature;
@@ -15,7 +15,7 @@ public class Message {
     private double tempThreshold; 
     private boolean alert;
     
-    public Message(){
+    public KafkaMessage(){
         this.temperature = 0;
         this.tempThreshold = 82;
         this.humidity = 0;
@@ -24,7 +24,7 @@ public class Message {
         this.env = "";
         this.alert = false;
     }
-    public Message(double temp, double humidity, String timestamp, String deviceName, String env, double tempThreshold){
+    public KafkaMessage(double temp, double humidity, String timestamp, String deviceName, String env, double tempThreshold){
         this.temperature = temp;
         this.humidity = humidity;
         this.timestamp = timestamp;

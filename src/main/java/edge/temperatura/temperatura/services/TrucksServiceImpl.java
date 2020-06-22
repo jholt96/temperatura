@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Alerts;
 import edge.temperatura.temperatura.models.Trucks;
-import edge.temperatura.temperatura.payloads.Message;
+import edge.temperatura.temperatura.payloads.KafkaMessage;
 import edge.temperatura.temperatura.repositories.AlertRepository;
 import edge.temperatura.temperatura.repositories.TruckRepository;
 
@@ -49,7 +49,7 @@ public class TrucksServiceImpl {
     }
 
     //passes by reference and changes the message and truck
-    public Trucks createAlert(Message message, final Trucks truck){
+    public Trucks createAlert(KafkaMessage message, final Trucks truck){
         Trucks tempTruck = truck;
         Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), message.getTempThreshold());
 
@@ -62,7 +62,7 @@ public class TrucksServiceImpl {
         return tempTruck;
     }
 
-    public Trucks createTruck(final Message newMessage){
+    public Trucks createTruck(final KafkaMessage newMessage){
 
         Trucks truck = new Trucks(newMessage.getHostname(), newMessage.getEnv());
         truckRepository.save(truck);

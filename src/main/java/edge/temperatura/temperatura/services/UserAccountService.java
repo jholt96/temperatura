@@ -10,21 +10,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Role;
 import edge.temperatura.temperatura.models.UserRole;
 import edge.temperatura.temperatura.models.Users;
+import edge.temperatura.temperatura.payloads.JwtResponse;
 import edge.temperatura.temperatura.payloads.Signin;
 import edge.temperatura.temperatura.payloads.Signup;
 import edge.temperatura.temperatura.payloads.UpdateUser;
 import edge.temperatura.temperatura.repositories.RoleRepository;
 import edge.temperatura.temperatura.repositories.UserRepository;
+import edge.temperatura.temperatura.security.JwtUtils;
+import edge.temperatura.temperatura.security.UserDetailsImpl;
 
 @Service
 public class UserAccountService {
@@ -38,10 +45,24 @@ public class UserAccountService {
     @Autowired
     RoleRepository roleRepository;
 
+    @Autowired
+    JwtUtils jwtUtils;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
     public ResponseEntity<?> loginUser(Signin user){
-        //TODO signin
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
     
-        return ResponseEntity.ok("Login Successful!");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+    
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();		
+        List<String> roles = userDetails.getAuthorities().stream()
+                                        .map(item -> item.getAuthority())
+                                        .collect(Collectors.toList());
+    
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), roles));
     }
 
     public ResponseEntity<?> signupUser(Signup user){

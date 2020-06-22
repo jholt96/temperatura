@@ -2,15 +2,13 @@ package edge.temperatura.temperatura.apicontroller;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edge.temperatura.temperatura.models.Users;
-import edge.temperatura.temperatura.payloads.JwtResponse;
 import edge.temperatura.temperatura.payloads.Signin;
 import edge.temperatura.temperatura.payloads.Signup;
 import edge.temperatura.temperatura.payloads.UpdateUser;
-import edge.temperatura.temperatura.security.JwtUtils;
-import edge.temperatura.temperatura.security.UserDetailsImpl;
 import edge.temperatura.temperatura.services.UserAccountService;
 
 @RestController
@@ -36,27 +31,17 @@ public class UsersController {
 @Autowired
 UserAccountService userAccountService;
 
-@Autowired
-JwtUtils jwtUtils;
-
-@Autowired
-AuthenticationManager authenticationManager;
-
-
 @PostMapping(value = "/login")
 public ResponseEntity<?> loginUser(@RequestBody Signin user){
-    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = jwtUtils.generateJwtToken(authentication);
-
-    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();		
-    List<String> roles = userDetails.getAuthorities().stream()
-                                    .map(item -> item.getAuthority())
-                                    .collect(Collectors.toList());
-
-    return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), roles));
+    return userAccountService.loginUser(user);
 }
+/*
+@GetMapping(value = "/crsf")
+public String getCsrfToken(HttpServletRequest request){
+    
+    CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+    return csrf.getToken();
+}*/
 
 @PostMapping(value = "/signup")
 @PreAuthorize("hasRole('ADMIN')")

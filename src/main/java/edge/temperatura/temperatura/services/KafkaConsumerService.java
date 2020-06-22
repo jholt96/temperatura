@@ -16,7 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Trucks;
-import edge.temperatura.temperatura.payloads.Message;
+import edge.temperatura.temperatura.payloads.KafkaMessage;
 
 @Service
 public class KafkaConsumerService implements ConsumerSeekAware{
@@ -31,7 +31,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     //private Map<String,Trucks> trucks;
     private Map<String,Short> alertCount = new HashMap<>();
     private final short messageThreshold = 24;
-    private Message newMessage;
+    private KafkaMessage newMessage;
 
 
     //Initialize the hashmap with the existing trucks in the db collection
@@ -51,7 +51,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
 
         Gson convert = new Gson();
 
-        newMessage = convert.fromJson(message, Message.class);
+        newMessage = convert.fromJson(message, KafkaMessage.class);
 
         //if the truck exists then test if it is past its threshold
         if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){
@@ -94,6 +94,5 @@ public class KafkaConsumerService implements ConsumerSeekAware{
         
         template.convertAndSend("/topic/edge", newMessage.toJson());
 
-        System.out.print(newMessage.toJson());
     }
 }
