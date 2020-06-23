@@ -16,6 +16,4 @@ It exposes some apis that allows the frontend to see a list of all trucks, get 1
 
 What is coming next?
 
-User auth- Oauth2 
-User Login/signup(only Admin can create a user as this is an enterprise application so random people should not be able to signup)
-User favorite- 
+An Actual README
