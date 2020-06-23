@@ -1,3 +1,14 @@
+/*
+Author: Josh Holt
+Temperatura Backend version 0.9
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Configuration: This Configuration is meant for authenticating a websocket connect request using JWT. 
+Since STOMP does not send in normal headers the JWT filter does not pick it up. The @Order annotation makes sure that this is created before the JWT filter
+If the connect request triggers this then it will authenticate the user,
+and then add it to the accessor so that the websocket messages are authenticated under the same user. 
+
+*/
 package edge.temperatura.temperatura.websocket;
 
 import org.slf4j.Logger;
@@ -76,16 +87,6 @@ public class WebSocketAuthConfig implements WebSocketMessageBrokerConfigurer {
                         }
                     }
                 }
-                /*
-                else if (StompCommand.SEND.equals(accessor.getCommand())){
-                    boolean isSent = channel.send(message);
- 
-                    if(isSent)
-                        return message;
-                }else if (StompCommand.DISCONNECT.equals(accessor.getCommand())){
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-                }*/
                 return message;
             }
         });

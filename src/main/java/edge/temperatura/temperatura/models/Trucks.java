@@ -1,3 +1,17 @@
+/*
+Author: Josh Holt
+Temperatura Backend
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: 
+This is the model for the Trucks Collection in Mongodb.
+This model holds the details for each truck that comes in through kafka. 
+It has a manual dbref for alerts that are assigned to a particular truck using the alerts id. 
+has added methods that allow for clearing alerts list and for adding to the alerts list. 
+
+
+Uses Lombok to autogenerate getters and setters
+*/
 package edge.temperatura.temperatura.models;
 
 import java.util.ArrayList;
@@ -45,9 +59,6 @@ public class Trucks {
         alertsId.add(alertId.toString());
     }
 
-    public Iterable<String> getIterableAlertsIds() {
-        return alertsId;
-    }
     public void clearAlerts(){
         alertsId.clear();
     }

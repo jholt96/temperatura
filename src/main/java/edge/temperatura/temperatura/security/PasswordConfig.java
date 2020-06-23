@@ -1,3 +1,10 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: create the bean object for the BcryptPasswordEncoder
+*/
 package edge.temperatura.temperatura.security;
 
 import org.springframework.context.annotation.Bean;

@@ -1,3 +1,12 @@
+/*
+Author: Josh Holt
+Temperatura Backend
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of class: Implements UserDetailsService interface to use the DAO object for the user collection in mongodb.
+
+
+*/
 package edge.temperatura.temperatura.security;
 
 import org.springframework.beans.factory.annotation.Autowired;

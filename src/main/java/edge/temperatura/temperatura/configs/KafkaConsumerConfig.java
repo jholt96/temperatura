@@ -1,3 +1,11 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: Configuration for Kafka Consumer. Creates the consumer listener and sends the messages along to the kafkaConsumerService class. 
+
+*/
 package edge.temperatura.temperatura.configs;
 
 import java.util.HashMap;
@@ -17,9 +25,9 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-
-
+import edge.temperatura.temperatura.payloads.KafkaMessage;
 
 @EnableKafka
 @Configuration
@@ -47,11 +55,10 @@ public class KafkaConsumerConfig {
 
         Map<String, Object> props = new HashMap<>();
 
-        //Can Change String deserializer to json
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServerAddress);
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
@@ -67,14 +74,15 @@ public class KafkaConsumerConfig {
 
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory(){
-    return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+    public ConsumerFactory<String, KafkaMessage> consumerFactory(){
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
+                                                                    new JsonDeserializer<>(KafkaMessage.class));
     }
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String,String>> kafkaListenerContainerFactory(){
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String,KafkaMessage>> kafkaListenerContainerFactory(){
 
-        ConcurrentKafkaListenerContainerFactory<String, String> factory= new ConcurrentKafkaListenerContainerFactory<String, String>();
+        ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> factory= new ConcurrentKafkaListenerContainerFactory<String, KafkaMessage>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }

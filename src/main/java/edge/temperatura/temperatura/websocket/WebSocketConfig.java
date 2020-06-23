@@ -1,3 +1,10 @@
+/*
+Author: Josh Holt
+Temperatura Backend version 0.9
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Configuration: Creates the Websocket STOMP endpoint and configure the message broker. 
+*/
 package edge.temperatura.temperatura.websocket;
 
 import org.springframework.context.annotation.Configuration;

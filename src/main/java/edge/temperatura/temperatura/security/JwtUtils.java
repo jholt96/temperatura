@@ -1,3 +1,11 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: Provides utility functions for processing and handling JWT tokens. 
+
+*/
 package edge.temperatura.temperatura.security;
 
 import java.util.Date;

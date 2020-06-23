@@ -1,3 +1,13 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: Provide a POJO for messages consumed from kafka. 
+The messages are deserialized in json and then turned into this object. 
+
+
+*/
 package edge.temperatura.temperatura.payloads;
 
 import lombok.Getter;

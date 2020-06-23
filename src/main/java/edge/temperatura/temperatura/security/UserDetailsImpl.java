@@ -1,3 +1,11 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: implements the security interface userDetails. this allows for custom userdetails that uses this applications 'Users' class. 
+
+*/
 package edge.temperatura.temperatura.security;
 
 import java.util.Collection;
@@ -19,9 +27,7 @@ public class UserDetailsImpl implements UserDetails{
     private String username;
     private String email;
 
-
     private final Collection<? extends GrantedAuthority> grantedAuthority;
-
 
     public UserDetailsImpl(ObjectId id, String username, String email, String password,
     Collection<? extends GrantedAuthority> authorities){
@@ -78,7 +84,6 @@ public class UserDetailsImpl implements UserDetails{
     @Override
     public boolean isCredentialsNonExpired() {return true;}
 
-@Override
-public boolean isEnabled() {return true;}
-
+    @Override
+    public boolean isEnabled() {return true;}
 }

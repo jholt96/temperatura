@@ -1,3 +1,14 @@
+/*
+Author: Josh Holt
+Temperatura Backend
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: 
+This is the model for the Role Collection in Mongodb.
+This model holds the various roles that a user can have. 
+
+Uses Lombok to autogenerate getters and setters
+*/
 package edge.temperatura.temperatura.models;
 
 import org.bson.types.ObjectId;

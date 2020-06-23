@@ -1,3 +1,18 @@
+/*
+Author: Josh Holt
+Temperatura Backend
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: 
+This is the model for the User Collection in Mongodb.
+This model holds the data around users. It has 2 manual dbrefs for roles and for trucks. 
+the trucks dbref holds the users favorited truck's ids. 
+
+the password is encrypted using bcrypt. 
+
+Uses Lombok to autogenerate getters and setters
+
+*/
 package edge.temperatura.temperatura.models;
 
 import java.util.HashSet;
@@ -32,5 +47,9 @@ public class Users {
       this.password = password;
       this.favoriteTrucksIds = new HashSet<>();
       this.roles = new HashSet<>();
+    }
+
+    public void addFavTruck(String id){
+      this.favoriteTrucksIds.add(id);
     }
 }

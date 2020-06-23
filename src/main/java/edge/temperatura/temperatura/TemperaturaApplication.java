@@ -1,9 +1,9 @@
 /*
 Author: Josh Holt
-Temperatura Backend version 1.0.0
+Temperatura Backend version 0.9
 Versions: Spring Boot 2.3, Java 11.
 
-TODO Add documentation, add feature for users to change username and password, more error handling, fetch crfs token
+TODO Clean up error Handling a bit more, Check Websocket Auth is working Correctly
 */
 
 package edge.temperatura.temperatura;

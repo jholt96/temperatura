@@ -1,3 +1,11 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: Provides an error handler for unauthorized requests. Sends an error response back, and logs the error. 
+
+*/
 package edge.temperatura.temperatura.security;
 
 import java.io.IOException;

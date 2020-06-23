@@ -1,3 +1,12 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Class: Creates an authentication Filter for JWT auth.
+Checks if the JWT token is valid and if it is then moves to the next filter. If it is not valid then blocks the request. 
+
+*/
 package edge.temperatura.temperatura.security;
 
 import java.io.IOException;
@@ -29,19 +38,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+                                                                                throws ServletException, IOException {
+        //Try to authenticate the JWT token
         try {
             String jwt = parseJwt(request);
-            System.out.print(request.getQueryString());
+
+            //if the token has been passed then try to validate it. 
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-            String username = jwtUtils.getUserNameFromJwtToken(jwt);
-    
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-    
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                String username = jwtUtils.getUserNameFromJwtToken(jwt);
+        
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
 
@@ -50,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   
         filterChain.doFilter(request, response);
     }
-    
+    //get the JWT token out of the header so that it can be validated
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
     

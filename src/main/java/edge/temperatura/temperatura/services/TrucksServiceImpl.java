@@ -1,3 +1,23 @@
+/*
+Author: Josh Holt
+Temperatura Backend 
+Versions: Spring Boot 2.3, Java 11.
+
+Purpose of Service: Provides Business Logic for all Logic that changes the trucks collection. 
+This includes the logic for the creation of trucks and alerts that happens in the KafkaConsumerService. 
+this also includes logic for the userAccountsService around favorite trucks. 
+This also includes the logic for the Rest Controller involved with trucks. 
+
+
+Imporant Design Notes: 
+
+The reason I did not split This Service into two seperate ones for Services and for Rest Controller is they both rely on the Map of Trucks. 
+The reason for the Map of Trucks is this is meant to be a scalable solution for x number of trucks. 
+If 1000 trucks are producing messages every 5 seconds, and each of those messages queries the database,
+this can create a huge bottleneck in the system. The map gets rid of this problem by only query the data in the database when it needs to be changed. 
+
+
+*/
 package edge.temperatura.temperatura.services;
 
 import java.util.ArrayList;
@@ -26,6 +46,8 @@ public class TrucksServiceImpl {
 
     private Map<String,Trucks> trucks = new HashMap<>();
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Business Logic for Kafka Consumer
     public void createMapOfTrucks(){
         
         List<Trucks> listTrucks = truckRepository.findAll();
@@ -69,6 +91,12 @@ public class TrucksServiceImpl {
 
         return truck;
     }
+    public List<Trucks> getListofFavTrucks(List<String> truckIds){
+        
+        List<Trucks> favoriteTrucks = (List<Trucks>) truckRepository.findAllById(truckIds);
+
+        return favoriteTrucks;
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //Rest Controller methods
@@ -87,32 +115,34 @@ public class TrucksServiceImpl {
                         .orElseThrow(() -> new RuntimeException("Truck does not exist!"));
 
         List<Alerts> arrList = new ArrayList<Alerts>();
-        arrList = (List<Alerts>) alertRepository.findAllById(truck.getIterableAlertsIds());
+        arrList = (List<Alerts>) alertRepository.findAllById(truck.getAlertsId());
 
         return arrList;
     }
 
-
     public void clearAlerts(String hostname){
 
-        Optional<Trucks> truck = truckRepository.findByhostname(hostname);
+        Trucks truck = truckRepository.findByhostname(hostname)
+                                      .orElseThrow(() -> new RuntimeException("Truck Does Not Exist!"));
 
-		truck.ifPresent(noAlertsTruck -> {
-            Iterable<Alerts> itrAlerts= alertRepository.findAllById(noAlertsTruck.getIterableAlertsIds());
+        Iterable<Alerts> itrAlerts= alertRepository.findAllById(truck.getAlertsId());
 
-            itrAlerts.forEach(alert -> {
-                alertRepository.delete(alert);
+        itrAlerts.forEach(alert -> {
+            alertRepository.delete(alert);
             });
-            noAlertsTruck.clearAlerts();
-            truckRepository.save(noAlertsTruck);
+            truck.clearAlerts();
+            truckRepository.save(truck);
 
-            trucks.put(noAlertsTruck.getHostname(), noAlertsTruck);
-        });
+            trucks.put(truck.getHostname(), truck);
 
     }
+    public void deleteTruck(String hostname){
+        
+        clearAlerts(hostname);
+        Trucks truck = truckRepository.findByhostname(hostname)
+                                      .orElseThrow(()-> new RuntimeException("Truck Does Not Exist!"));
+        
+        truckRepository.delete(truck);
 
-
-
-
-
+    }
 }
