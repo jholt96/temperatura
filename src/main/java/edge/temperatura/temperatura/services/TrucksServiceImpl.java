@@ -71,9 +71,10 @@ public class TrucksServiceImpl {
     }
 
     //passes by reference and changes the message and truck
-    public Trucks createAlert(KafkaMessage message, final Trucks truck){
-        Trucks tempTruck = truck;
-        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), message.getTempThreshold());
+    public Trucks createAlert(KafkaMessage message, double ThresholdHit, String thresholdType){
+        Trucks tempTruck = truckRepository.findByhostname(message.getHostname()).orElseThrow(() -> new RuntimeException("This Truck Does not Exist!"));
+
+        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), ThresholdHit, thresholdType);
 
         tempTruck.addAlert(newAlert.get_id());
         message.setAlert(true);
@@ -137,7 +138,7 @@ public class TrucksServiceImpl {
 
     }
     public void deleteTruck(String hostname){
-        
+
         clearAlerts(hostname);
         Trucks truck = truckRepository.findByhostname(hostname)
                                       .orElseThrow(()-> new RuntimeException("Truck Does Not Exist!"));

@@ -6,7 +6,6 @@ Versions: Spring Boot 2.3, Java 11.
 Purpose of Service:  Provides logic regarding the User collection in mongodb and the interactions with the Rest Controller for users. 
 
 
-
 */
 
 package edge.temperatura.temperatura.services;

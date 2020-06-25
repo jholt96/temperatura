@@ -10,6 +10,8 @@ The messages are deserialized in json and then turned into this object.
 */
 package edge.temperatura.temperatura.payloads;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,26 +24,45 @@ public class KafkaMessage {
     private double humidity;
     private String hostname;
     private String env;
-    private double tempThreshold; 
+
+    private double tempCeilingThreshold; 
+    private double tempFloorThreshold; 
+    private double humidityCeilingThreshold; 
+    private double humidityFloorThreshold; 
+
+    @Value("${defaultTempCeilingThreshold}")
+    private static double defaultTempCeilingThreshold; 
+    @Value("${defaultTempFloorThreshold}")
+    private static double defaultTempFloorThreshold; 
+    @Value("${defaultHumidityCeilingThreshold}")
+    private static double defaultHumidityCeilingThreshold; 
+    @Value("${defaultHumidityFloorThreshold}")
+    private static double defaultHumidityFloorThreshold; 
+
     private boolean alert;
     
     public KafkaMessage(){
         this.temperature = 0;
-        this.tempThreshold = 82;
         this.humidity = 0;
         this.timestamp = "";
         this.hostname = "";
         this.env = "";
         this.alert = false;
     }
-    public KafkaMessage(double temp, double humidity, String timestamp, String deviceName, String env, double tempThreshold){
+    public KafkaMessage(double temp, double humidity, String timestamp, String deviceName, String env, 
+                        double tempCeilingThreshold, double tempFloorThreshold, double humidityCeilingThreshold, double humidityFloorThreshold) {
+
         this.temperature = temp;
         this.humidity = humidity;
         this.timestamp = timestamp;
         this.hostname = deviceName;
         this.env = env;
-        this.tempThreshold = tempThreshold;
         this.alert = false;
+
+        this.tempCeilingThreshold = tempCeilingThreshold;
+        this.tempFloorThreshold = tempFloorThreshold; 
+        this.humidityCeilingThreshold = humidityCeilingThreshold; 
+        this.humidityFloorThreshold = humidityFloorThreshold;
     }
 
 
@@ -51,7 +72,10 @@ public class KafkaMessage {
         "\"temperature\": \"" + temperature + "\"," +
         "\"env\": \"" + env + "\","+
         "\"humidity\": \" " + humidity + "\"," +
-        "\"tempThreshold\": \" " + tempThreshold + "\"," +
+        "\"tempCeilingThreshold\": \" " + tempCeilingThreshold + "\"," +
+        "\"tempFloorThreshold\": \" " + tempFloorThreshold + "\"," +
+        "\"humidityCeilingThreshold\": \" " + humidityCeilingThreshold + "\"," +
+        "\"humidityFloorThreshold\": \" " + humidityFloorThreshold + "\"," +
         "\"alert\": \" " + alert + "\"}";
     }
 
