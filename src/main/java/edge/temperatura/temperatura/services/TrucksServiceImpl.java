@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Alerts;
+import edge.temperatura.temperatura.models.RollingAverage;
 import edge.temperatura.temperatura.models.Trucks;
 import edge.temperatura.temperatura.payloads.KafkaMessage;
 import edge.temperatura.temperatura.repositories.AlertRepository;
@@ -44,7 +45,7 @@ public class TrucksServiceImpl {
     @Autowired
     private AlertRepository alertRepository;
 
-    private Map<String,Trucks> trucks = new HashMap<>();
+    private Map<String,RollingAverage> trucks = new HashMap<>();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Business Logic for Kafka Consumer
@@ -53,21 +54,17 @@ public class TrucksServiceImpl {
         List<Trucks> listTrucks = truckRepository.findAll();
 
         for( int i = 0; i < listTrucks.size(); i++){
-            trucks.put(listTrucks.get(i).getHostname(), listTrucks.get(i));
+            trucks.put(listTrucks.get(i).getHostname(), new RollingAverage());
         }
     }
 
-    public Map<String,Trucks> getMapOfTrucks(){
+    public Map<String,RollingAverage> getMapOfTrucks(){
         return trucks;
     }
 
     public void addToMapOfTrucks(Trucks truck){
 
-        trucks.put(truck.getHostname(), truck);
-    }
-
-    public Trucks getOneTruckFromMapOfTrucks(String hostname){
-        return trucks.get(hostname);
+        trucks.put(truck.getHostname(), new RollingAverage());
     }
 
     //passes by reference and changes the message and truck
@@ -85,12 +82,13 @@ public class TrucksServiceImpl {
         return tempTruck;
     }
 
-    public Trucks createTruck(final KafkaMessage newMessage){
+    public void createTruck(final KafkaMessage newMessage){
 
         Trucks truck = new Trucks(newMessage.getHostname(), newMessage.getEnv());
         truckRepository.save(truck);
 
-        return truck;
+        this.addToMapOfTrucks(truck);
+
     }
     public List<Trucks> getListofFavTrucks(List<String> truckIds){
         
@@ -129,13 +127,12 @@ public class TrucksServiceImpl {
         Iterable<Alerts> itrAlerts= alertRepository.findAllById(truck.getAlertsId());
 
         itrAlerts.forEach(alert -> {
+
             alertRepository.delete(alert);
-            });
-            truck.clearAlerts();
-            truckRepository.save(truck);
+        });
 
-            trucks.put(truck.getHostname(), truck);
-
+        truck.clearAlerts();
+        truckRepository.save(truck);
     }
     public void deleteTruck(String hostname){
 
@@ -143,6 +140,8 @@ public class TrucksServiceImpl {
         Trucks truck = truckRepository.findByhostname(hostname)
                                       .orElseThrow(()-> new RuntimeException("Truck Does Not Exist!"));
         
+        trucks.remove(hostname);
+        //delete cronjob
         truckRepository.delete(truck);
 
     }

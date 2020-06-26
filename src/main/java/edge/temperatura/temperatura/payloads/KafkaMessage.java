@@ -20,24 +20,24 @@ import lombok.Setter;
 public class KafkaMessage {
     
     private String timestamp;
-    private double temperature;
-    private double humidity;
+    private float temperature;
+    private float humidity;
     private String hostname;
     private String env;
 
-    private double tempCeilingThreshold; 
-    private double tempFloorThreshold; 
-    private double humidityCeilingThreshold; 
-    private double humidityFloorThreshold; 
+    private float tempCeilingThreshold; 
+    private float tempFloorThreshold; 
+    private float humidityCeilingThreshold; 
+    private float humidityFloorThreshold; 
 
     @Value("${defaultTempCeilingThreshold}")
-    private static double defaultTempCeilingThreshold; 
+    private static float defaultTempCeilingThreshold; 
     @Value("${defaultTempFloorThreshold}")
-    private static double defaultTempFloorThreshold; 
+    private static float defaultTempFloorThreshold; 
     @Value("${defaultHumidityCeilingThreshold}")
-    private static double defaultHumidityCeilingThreshold; 
+    private static float defaultHumidityCeilingThreshold; 
     @Value("${defaultHumidityFloorThreshold}")
-    private static double defaultHumidityFloorThreshold; 
+    private static float defaultHumidityFloorThreshold; 
 
     private boolean alert;
     
@@ -49,8 +49,8 @@ public class KafkaMessage {
         this.env = "";
         this.alert = false;
     }
-    public KafkaMessage(double temp, double humidity, String timestamp, String deviceName, String env, 
-                        double tempCeilingThreshold, double tempFloorThreshold, double humidityCeilingThreshold, double humidityFloorThreshold) {
+    public KafkaMessage(float temp, float humidity, String timestamp, String deviceName, String env, 
+                        float tempCeilingThreshold, float tempFloorThreshold, float humidityCeilingThreshold, float humidityFloorThreshold) {
 
         this.temperature = temp;
         this.humidity = humidity;

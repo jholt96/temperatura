@@ -26,17 +26,17 @@ public class Alerts {
     private String timestamp; 
     private double temperature;
     private double humidity;
-    private double thresholdHit; 
+    private double rollingAvg; 
     private String thresholdType;
 
     public Alerts(){}
 
-    public Alerts(String timestamp, double temperature, double humidity, double thresholdHit, String thresholdType){
+    public Alerts(String timestamp, double temperature, double humidity, double rollingAvg, String thresholdType){
         this._id = ObjectId.get();
         this.timestamp = timestamp;
         this.temperature = temperature;
         this.humidity = humidity;
-        this.thresholdHit = thresholdHit;
+        this.rollingAvg = rollingAvg;
         this.thresholdType = thresholdType; 
     }
 }

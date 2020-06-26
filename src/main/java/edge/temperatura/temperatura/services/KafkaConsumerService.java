@@ -13,18 +13,13 @@ Important Design Choices:
 Since this application is meant to show real time data into the trucks, in the event of a restart of this app, 
 it will seek to the end of the topic offset and ignore the rest. 
 
-Keeps a Hashmap of 'problem' trucks. if the truck drops below the threshold and it is in the hashmap then it will drop to zero. 
-This could potentially be an issue if it is at the threshold and going back and forth but in the case of this application, it will be up to 
-the application running on the truck to set a proper threshold that if it in this state the cargo will not be damaged. Another note on this topic, 
-even though it may not send an alert the dashboard will still show the current state of the trucks for the business user to determine if it is important. 
+Keeps a Hashmap of 'problem' trucks. 
 
-TL/DR: Basically trucks need to set a threshold that cargo will not be endangered but if it gets above it then there should be an alert. 
 
-TODO can implement threshold for humidity and a floor threshold. Can implement 
+TODO can implement rolling average and rate of change for precision
 */
 package edge.temperatura.temperatura.services;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -32,13 +27,13 @@ import javax.annotation.PostConstruct;
 
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.listener.ConsumerSeekAware;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import edge.temperatura.temperatura.models.Trucks;
 import edge.temperatura.temperatura.payloads.KafkaMessage;
 
 @Service
@@ -50,41 +45,16 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     @Autowired
     private TrucksServiceImpl trucksServiceImpl;
 
-    private Map<String,Short> alertCount = new HashMap<>();
-    private final short messageThreshold = 60;
+    @Value("${defaultMessageThreshold}")
+    private static short messageThreshold;
     
-    private boolean checkHumidityCeilingThreshold(KafkaMessage message){
-        return message.getHumidity() >= message.getHumidityCeilingThreshold();
-    }
-    private boolean checkHumidityFloorThreshold(KafkaMessage message){
-        return message.getHumidity() <= message.getHumidityFloorThreshold();
-    }
-    private boolean checkTempCeilingThreshold(KafkaMessage message){
-        return message.getTemperature() >= message.getTempCeilingThreshold();
-    }
-    private boolean checkTempFloorThreshold(KafkaMessage message){
-        return message.getTemperature() <= message.getTempFloorThreshold();
+    private boolean checkIfPastThreshold(float newHumidityAvg, float ceilingThreshold, float floorThreshold){
+        return !(floorThreshold <= newHumidityAvg && newHumidityAvg <= ceilingThreshold);
     }
 
-    private void checkForAlert(KafkaMessage newMessage, String threshholdType){
-        //if its in the problem child map
-        if(alertCount.containsKey(newMessage.getHostname() + threshholdType)){
-            //if it has 10 messages where it exceeded the threshold
-            if(alertCount.get(newMessage.getHostname() + threshholdType) == messageThreshold){
-                //create an alert and send it
-                trucksServiceImpl.createAlert(newMessage, newMessage.getTempCeilingThreshold(), threshholdType);
+    private void checkForAlert(KafkaMessage newMessage, String threshholdType, float rollingAvg){
 
-                // then delete it to restart the count
-                alertCount.put((newMessage.getHostname() + threshholdType), (short) 0);            
 
-            }else{
-                //keep it on the watch list and increment
-                alertCount.put((newMessage.getHostname()  + threshholdType), (short) (alertCount.get(newMessage.getHostname()  + threshholdType) + 1));
-            }
-        }else{
-            //else it is below the threshold again so reset its number
-            alertCount.put((newMessage.getHostname() + threshholdType), (short) 0);
-        }
     }
 
 
@@ -106,33 +76,24 @@ public class KafkaConsumerService implements ConsumerSeekAware{
         //if the truck exists then test if it is past its threshold
         if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){
 
-            Trucks truck = trucksServiceImpl.getOneTruckFromMapOfTrucks(newMessage.getHostname());
+            float newTempAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
+                             .calcNewHumidityRollingAvg(newMessage.getHumidity());
+
+            float newHumidityAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
+                             .calcNewTempRollingAvg(newMessage.getTemperature());
             
-            if (this.checkTempCeilingThreshold(newMessage)){
+            //every 5 minutes check if the rolling average is passed the thresholds set by driver. possible solution is to use ScheduledExecutorService 
+            if (this.checkIfPastThreshold(newTempAvg, newMessage.getTempCeilingThreshold(),newMessage.getTempFloorThreshold())){
 
-                this.checkForAlert(newMessage, "tempCeiling");
+                this.checkForAlert(newMessage, "temperature", newTempAvg);
 
-            }else if(this.checkTempFloorThreshold(newMessage)){
+            }else if(this.checkIfPastThreshold(newHumidityAvg, newMessage.getHumidityCeilingThreshold(), newMessage.getHumidityFloorThreshold())){
 
-                this.checkForAlert(newMessage, "tempFloor");
+                this.checkForAlert(newMessage, "humidity", newHumidityAvg);
 
-            }else if(this.checkHumidityCeilingThreshold(newMessage)){
-
-                this.checkForAlert(newMessage, "humidityCeiling");
-
-            }else if(this.checkHumidityFloorThreshold(newMessage)){
-
-                this.checkForAlert(newMessage, "humidityFloor");
-
-            }
-            else if(alertCount.containsKey(newMessage.getHostname())){
-
-                    alertCount.put(newMessage.getHostname(), (short) 0);
             }
         }else{
-            Trucks truck = trucksServiceImpl.createTruck(newMessage);
-
-            trucksServiceImpl.addToMapOfTrucks(truck);
+                trucksServiceImpl.createTruck(newMessage);
         }
 
         //now pass the kafka message on to the Websocket
