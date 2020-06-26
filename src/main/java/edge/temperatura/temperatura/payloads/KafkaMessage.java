@@ -25,15 +25,15 @@ public class KafkaMessage {
     private String hostname;
     private String env;
 
-    private float tempCeilingThreshold; 
-    private float tempFloorThreshold; 
+    private float temperatureCeilingThreshold; 
+    private float temperatureFloorThreshold; 
     private float humidityCeilingThreshold; 
     private float humidityFloorThreshold; 
 
     @Value("${defaultTempCeilingThreshold}")
-    private static float defaultTempCeilingThreshold; 
+    private static float defaulttemperatureCeilingThreshold; 
     @Value("${defaultTempFloorThreshold}")
-    private static float defaultTempFloorThreshold; 
+    private static float defaulttemperatureFloorThreshold; 
     @Value("${defaultHumidityCeilingThreshold}")
     private static float defaultHumidityCeilingThreshold; 
     @Value("${defaultHumidityFloorThreshold}")
@@ -49,34 +49,34 @@ public class KafkaMessage {
         this.env = "";
         this.alert = false;
     }
-    public KafkaMessage(float temp, float humidity, String timestamp, String deviceName, String env, 
-                        float tempCeilingThreshold, float tempFloorThreshold, float humidityCeilingThreshold, float humidityFloorThreshold) {
+    public KafkaMessage(float temperature, float humidity, String timestamp, String deviceName, String env, 
+                        float temperatureCeilingThreshold, float temperatureFloorThreshold, float humidityCeilingThreshold, float humidityFloorThreshold) {
 
-        this.temperature = temp;
+        this.temperature = temperature;
         this.humidity = humidity;
         this.timestamp = timestamp;
         this.hostname = deviceName;
         this.env = env;
         this.alert = false;
 
-        this.tempCeilingThreshold = tempCeilingThreshold;
-        this.tempFloorThreshold = tempFloorThreshold; 
+        this.temperatureCeilingThreshold = temperatureCeilingThreshold;
+        this.temperatureFloorThreshold = temperatureFloorThreshold; 
         this.humidityCeilingThreshold = humidityCeilingThreshold; 
         this.humidityFloorThreshold = humidityFloorThreshold;
     }
 
 
     public String toJson(){
-        return "{\"timestamp\": \"" + timestamp + "\"," +
+        return "{\"message\":{\"timestamp\": \"" + timestamp + "\"," +
         "\"hostname\": \"" + hostname + "\"," +
         "\"temperature\": \"" + temperature + "\"," +
         "\"env\": \"" + env + "\","+
         "\"humidity\": \" " + humidity + "\"," +
-        "\"tempCeilingThreshold\": \" " + tempCeilingThreshold + "\"," +
-        "\"tempFloorThreshold\": \" " + tempFloorThreshold + "\"," +
+        "\"temperatureCeilingThreshold\": \" " + temperatureCeilingThreshold + "\"," +
+        "\"temperatureFloorThreshold\": \" " + temperatureFloorThreshold + "\"," +
         "\"humidityCeilingThreshold\": \" " + humidityCeilingThreshold + "\"," +
         "\"humidityFloorThreshold\": \" " + humidityFloorThreshold + "\"," +
-        "\"alert\": \" " + alert + "\"}";
+        "\"alert\": \" " + alert + "\"}}";
     }
 
 

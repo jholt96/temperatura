@@ -16,16 +16,20 @@ it will seek to the end of the topic offset and ignore the rest.
 Keeps a Hashmap of 'problem' trucks. 
 
 
-TODO can implement rolling average and rate of change for precision
+TODO can implement rate of change for precision. need to implement job to clean the map of trucks. 
 */
 package edge.temperatura.temperatura.services;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
-
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -34,6 +38,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import edge.temperatura.temperatura.payloads.AlertMessage;
 import edge.temperatura.temperatura.payloads.KafkaMessage;
 
 @Service
@@ -45,15 +50,56 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     @Autowired
     private TrucksServiceImpl trucksServiceImpl;
 
-    @Value("${defaultMessageThreshold}")
-    private static short messageThreshold;
+    private ScheduledThreadPoolExecutor executor;
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
+
+    @Value("${taskTimeForAlertCheckInMinutes}")
+    private short taskTimeForAlertCheck;
+
+
     
-    private boolean checkIfPastThreshold(float newHumidityAvg, float ceilingThreshold, float floorThreshold){
-        return !(floorThreshold <= newHumidityAvg && newHumidityAvg <= ceilingThreshold);
+    private boolean checkIfPastThreshold(float rollingAvg, float ceilingThreshold, float floorThreshold){
+        return (floorThreshold >= rollingAvg || rollingAvg >= ceilingThreshold);
     }
 
-    private void checkForAlert(KafkaMessage newMessage, String threshholdType, float rollingAvg){
+    private void createTask(KafkaMessage newMessage ){
+        try {
+            executor.schedule(() -> {
 
+                if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())) {
+
+                    trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setTaskRunning(false);
+
+                    float rollingTemperatureAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).getRollingtemperatureAvg();
+                    float rollingHumidityAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).getRollingHumidityAvg();
+                    AlertMessage newAlertMessage = null;
+
+                    boolean pastThreshold = checkIfPastThreshold(rollingHumidityAvg, newMessage.getHumidityCeilingThreshold(), newMessage.getHumidityFloorThreshold())
+                                            || checkIfPastThreshold(rollingTemperatureAvg, newMessage.getTemperatureCeilingThreshold(), newMessage.getTemperatureFloorThreshold());
+
+                    if (pastThreshold) {
+
+                        newAlertMessage = trucksServiceImpl.createAlert(newMessage,rollingTemperatureAvg,rollingHumidityAvg);
+
+                        trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setOverThresholdsDuringLastPoll(true);
+
+                        template.convertAndSend("/topic/edge",newAlertMessage.toJson());
+
+                    }else{
+                            trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setOverThresholdsDuringLastPoll(false);
+                    }                    
+                }
+                else{
+                    logger.info("Truck does not exist in the map anymore!");
+                }
+
+            }, taskTimeForAlertCheck, TimeUnit.MINUTES);   
+
+        } catch (Exception e) {
+
+            logger.error("Could not create task", e);
+        }
 
     }
 
@@ -63,41 +109,54 @@ public class KafkaConsumerService implements ConsumerSeekAware{
     public void init() {
 
         trucksServiceImpl.createMapOfTrucks();
+        executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(5);
     }
 
     @Override
     public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
+
         assignments.keySet().forEach(tp -> callback.seekToEnd(tp.topic(), tp.partition()));
     }
 
     @KafkaListener(topics="${kafkaTopic}")
     public void consume(@Payload KafkaMessage newMessage) {
 
-        //if the truck exists then test if it is past its threshold
-        if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){
+        try {
+            if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){
 
-            float newTempAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
-                             .calcNewHumidityRollingAvg(newMessage.getHumidity());
+                float newHumidityAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
+                                                    .calcNewHumidityRollingAvg(newMessage.getHumidity());
 
-            float newHumidityAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
-                             .calcNewTempRollingAvg(newMessage.getTemperature());
-            
-            //every 5 minutes check if the rolling average is passed the thresholds set by driver. possible solution is to use ScheduledExecutorService 
-            if (this.checkIfPastThreshold(newTempAvg, newMessage.getTempCeilingThreshold(),newMessage.getTempFloorThreshold())){
+                float newtemperatureAvg = trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname())
+                                                        .calcNewtemperatureRollingAvg(newMessage.getTemperature());
 
-                this.checkForAlert(newMessage, "temperature", newTempAvg);
+                trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setTimeStamp(newMessage.getTimestamp());
+                
+                if ((this.checkIfPastThreshold(newtemperatureAvg, newMessage.getTemperatureCeilingThreshold(),newMessage.getTemperatureFloorThreshold()) 
+                || this.checkIfPastThreshold(newHumidityAvg, newMessage.getHumidityCeilingThreshold(), newMessage.getHumidityFloorThreshold())) 
+                && !(trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).isTaskRunning())) {
 
-            }else if(this.checkIfPastThreshold(newHumidityAvg, newMessage.getHumidityCeilingThreshold(), newMessage.getHumidityFloorThreshold())){
+                    this.createTask(newMessage);
+                    trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setTaskRunning(true);
 
-                this.checkForAlert(newMessage, "humidity", newHumidityAvg);
-
+                    if(!trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).wasOverThresholdsDuringLastPoll()) {
+                            
+                        AlertMessage alertMessage = trucksServiceImpl.createAlert(newMessage, newtemperatureAvg, newHumidityAvg);
+                        template.convertAndSend("/topic/edge",alertMessage.toJson());
+                    }
+                }else{
+                    trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setOverThresholdsDuringLastPoll(false);
+                }
+            }else{
+                    trucksServiceImpl.createTruck(newMessage);
             }
-        }else{
-                trucksServiceImpl.createTruck(newMessage);
+
+            //now pass the kafka message on to the Websocket
+            template.convertAndSend("/topic/edge", newMessage.toJson());
+
+        } catch (Exception e) {
+            logger.error("unable to process message", e);
         }
 
-        //now pass the kafka message on to the Websocket
-        
-        template.convertAndSend("/topic/edge", newMessage.toJson());
     }
 }

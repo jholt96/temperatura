@@ -2,53 +2,78 @@ package edge.temperatura.temperatura.models;
 
 import java.util.LinkedList;
 
-import org.springframework.beans.factory.annotation.Value;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class RollingAverage {
 
-    private LinkedList<Float> tempAvg;
+    private LinkedList<Float> temperatureAvg;
     private LinkedList<Float> humidityAvg;
     @Getter
-    private float rollingTempAvg;
+    private float rollingtemperatureAvg;
     @Getter
     private float rollingHumidityAvg;
 
-    @Value("${defaultMessageThreshold}")
-    private static float messageThreshold;
+    private double rollingtemperatureSum;
+    private double rollingHumiditySum;
 
-    public RollingAverage(){
-        tempAvg = new LinkedList<>();
+    @Getter
+    @Setter
+    private boolean taskRunning;
+
+    @Setter
+    private boolean overThresholdsDuringLastPoll;
+
+    @Getter
+    @Setter
+    private String timeStamp;
+
+    private int messageThreshold;
+
+    public RollingAverage(int messageThreshold){
+        temperatureAvg = new LinkedList<>();
         humidityAvg = new LinkedList<>();
-        rollingTempAvg = 0;
+        rollingtemperatureAvg = 0;
+        rollingHumidityAvg = 0;
+        rollingtemperatureSum = 0;
+        rollingHumiditySum = 0;
+        taskRunning = false;
+        overThresholdsDuringLastPoll = false;
+        this.messageThreshold = messageThreshold;
     }
 
-    public float calcNewTempRollingAvg(float newTempVal){
+    public float calcNewtemperatureRollingAvg(float newtemperatureVal){
 
-        if(tempAvg.size() == 50){
+        if(temperatureAvg.size() >= messageThreshold){
 
-            rollingTempAvg -= tempAvg.removeFirst();
+            rollingtemperatureSum -= temperatureAvg.removeFirst();
         }
-        tempAvg.add(newTempVal);
+        temperatureAvg.add(newtemperatureVal);
+        rollingtemperatureSum += newtemperatureVal;
 
-        rollingTempAvg = (rollingTempAvg + newTempVal)/tempAvg.size();
+        rollingtemperatureAvg = (float)rollingtemperatureSum/temperatureAvg.size();
 
-        return rollingTempAvg;
+        return rollingtemperatureAvg;
     }
 
 
     public float calcNewHumidityRollingAvg(float newHumidityVal){
 
-        if(humidityAvg.size() == 50){
+        if(humidityAvg.size() >= messageThreshold){
 
-            rollingHumidityAvg -= humidityAvg.removeFirst();
+            rollingHumiditySum -= humidityAvg.removeFirst();
         }
         humidityAvg.add(newHumidityVal);
+        rollingHumiditySum += newHumidityVal;
 
-        rollingHumidityAvg = (rollingHumidityAvg + newHumidityVal)/humidityAvg.size();
+        rollingHumidityAvg = (float) rollingHumiditySum/humidityAvg.size();
 
         return rollingHumidityAvg;
+    }
+
+    public boolean wasOverThresholdsDuringLastPoll(){
+        return this.overThresholdsDuringLastPoll;
     }
     
 }

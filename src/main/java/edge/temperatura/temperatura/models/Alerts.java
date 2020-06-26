@@ -24,19 +24,19 @@ public class Alerts {
     @Id
     private ObjectId _id;
     private String timestamp; 
-    private double temperature;
-    private double humidity;
-    private double rollingAvg; 
-    private String thresholdType;
+    private float temperature;
+    private float humidity;
+    private float rollingTemperatureAvg; 
+    private float rollingHumidityAvg; 
 
     public Alerts(){}
 
-    public Alerts(String timestamp, double temperature, double humidity, double rollingAvg, String thresholdType){
+    public Alerts(String timestamp, float temperature, float humidity, float rollingTemperatureAvg, float rollingHumidityAvg){
         this._id = ObjectId.get();
         this.timestamp = timestamp;
         this.temperature = temperature;
         this.humidity = humidity;
-        this.rollingAvg = rollingAvg;
-        this.thresholdType = thresholdType; 
+        this.rollingTemperatureAvg = rollingTemperatureAvg;
+        this.rollingHumidityAvg = rollingHumidityAvg;
     }
 }

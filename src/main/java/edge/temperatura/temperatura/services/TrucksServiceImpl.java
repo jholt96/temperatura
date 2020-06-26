@@ -27,11 +27,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Alerts;
 import edge.temperatura.temperatura.models.RollingAverage;
 import edge.temperatura.temperatura.models.Trucks;
+import edge.temperatura.temperatura.payloads.AlertMessage;
 import edge.temperatura.temperatura.payloads.KafkaMessage;
 import edge.temperatura.temperatura.repositories.AlertRepository;
 import edge.temperatura.temperatura.repositories.TruckRepository;
@@ -47,6 +49,9 @@ public class TrucksServiceImpl {
 
     private Map<String,RollingAverage> trucks = new HashMap<>();
 
+    @Value("${defaultMessageThreshold}")
+    private int messageThreshold;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Business Logic for Kafka Consumer
     public void createMapOfTrucks(){
@@ -54,7 +59,7 @@ public class TrucksServiceImpl {
         List<Trucks> listTrucks = truckRepository.findAll();
 
         for( int i = 0; i < listTrucks.size(); i++){
-            trucks.put(listTrucks.get(i).getHostname(), new RollingAverage());
+            trucks.put(listTrucks.get(i).getHostname(), new RollingAverage(messageThreshold));
         }
     }
 
@@ -64,14 +69,17 @@ public class TrucksServiceImpl {
 
     public void addToMapOfTrucks(Trucks truck){
 
-        trucks.put(truck.getHostname(), new RollingAverage());
+        trucks.put(truck.getHostname(), new RollingAverage(messageThreshold));
     }
 
     //passes by reference and changes the message and truck
-    public Trucks createAlert(KafkaMessage message, double ThresholdHit, String thresholdType){
+    public AlertMessage createAlert(KafkaMessage message, float rollingTemperatureAvg, float rollingHumidityAvg){
         Trucks tempTruck = truckRepository.findByhostname(message.getHostname()).orElseThrow(() -> new RuntimeException("This Truck Does not Exist!"));
 
-        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), ThresholdHit, thresholdType);
+        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), rollingTemperatureAvg, rollingHumidityAvg);
+
+        AlertMessage newAlertMessage = new AlertMessage(message.getTimestamp(),
+                                         message.getTemperature(), message.getHumidity(), rollingTemperatureAvg, rollingHumidityAvg, message.getHostname());
 
         tempTruck.addAlert(newAlert.get_id());
         message.setAlert(true);
@@ -79,7 +87,7 @@ public class TrucksServiceImpl {
         alertRepository.save(newAlert);
         truckRepository.save(tempTruck);
 
-        return tempTruck;
+        return newAlertMessage;
     }
 
     public void createTruck(final KafkaMessage newMessage){
