@@ -56,8 +56,6 @@ public class KafkaConsumerService implements ConsumerSeekAware{
 
     @Value("${taskTimeForAlertCheckInMinutes}")
     private short taskTimeForAlertCheck;
-
-
     
     private boolean checkIfPastThreshold(float rollingAvg, float ceilingThreshold, float floorThreshold){
         return (floorThreshold >= rollingAvg || rollingAvg >= ceilingThreshold);
