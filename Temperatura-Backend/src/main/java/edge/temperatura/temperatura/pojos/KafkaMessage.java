@@ -8,7 +8,7 @@ The messages are deserialized in json and then turned into this object.
 
 
 */
-package edge.temperatura.temperatura.payloads;
+package edge.temperatura.temperatura.pojos;
 
 import org.springframework.beans.factory.annotation.Value;
 

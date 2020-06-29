@@ -31,10 +31,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import edge.temperatura.temperatura.models.Alerts;
-import edge.temperatura.temperatura.models.RollingAverage;
 import edge.temperatura.temperatura.models.Trucks;
-import edge.temperatura.temperatura.payloads.AlertMessage;
-import edge.temperatura.temperatura.payloads.KafkaMessage;
+import edge.temperatura.temperatura.pojos.AlertMessage;
+import edge.temperatura.temperatura.pojos.KafkaMessage;
+import edge.temperatura.temperatura.pojos.RollingAverage;
 import edge.temperatura.temperatura.repositories.AlertRepository;
 import edge.temperatura.temperatura.repositories.TruckRepository;
 

@@ -41,10 +41,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edge.temperatura.temperatura.models.Trucks;
-import edge.temperatura.temperatura.payloads.ReturnUsers;
-import edge.temperatura.temperatura.payloads.Signin;
-import edge.temperatura.temperatura.payloads.Signup;
-import edge.temperatura.temperatura.payloads.UpdateUser;
+import edge.temperatura.temperatura.pojos.ReturnUsers;
+import edge.temperatura.temperatura.pojos.Signin;
+import edge.temperatura.temperatura.pojos.Signup;
+import edge.temperatura.temperatura.pojos.UpdateUser;
 import edge.temperatura.temperatura.services.UserAccountService;
 
 @RestController

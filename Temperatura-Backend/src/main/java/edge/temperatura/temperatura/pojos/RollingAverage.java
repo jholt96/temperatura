@@ -1,4 +1,4 @@
-package edge.temperatura.temperatura.models;
+package edge.temperatura.temperatura.pojos;
 
 import java.util.LinkedList;
 

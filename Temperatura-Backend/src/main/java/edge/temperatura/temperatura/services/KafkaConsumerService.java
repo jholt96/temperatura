@@ -38,8 +38,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import edge.temperatura.temperatura.payloads.AlertMessage;
-import edge.temperatura.temperatura.payloads.KafkaMessage;
+import edge.temperatura.temperatura.pojos.AlertMessage;
+import edge.temperatura.temperatura.pojos.KafkaMessage;
 
 @Service
 public class KafkaConsumerService implements ConsumerSeekAware{

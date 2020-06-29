@@ -27,7 +27,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-import edge.temperatura.temperatura.payloads.KafkaMessage;
+import edge.temperatura.temperatura.pojos.KafkaMessage;
 
 @EnableKafka
 @Configuration

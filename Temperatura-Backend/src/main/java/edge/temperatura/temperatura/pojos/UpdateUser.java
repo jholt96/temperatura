@@ -7,7 +7,7 @@ Purpose of Class: Provide a POJO for the update user request.
 When the user tries to update their information they will create this object in the form and then pass it in the PUT request.
 
 */
-package edge.temperatura.temperatura.payloads;
+package edge.temperatura.temperatura.pojos;
 
 import lombok.Getter;
 import lombok.Setter;

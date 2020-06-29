@@ -6,7 +6,7 @@ Versions: Spring Boot 2.3, Java 11.
 Purpose of Class: Provide a POJO for the login request. 
 When user logs in they will pass this object in the POST request. 
 */
-package edge.temperatura.temperatura.payloads;
+package edge.temperatura.temperatura.pojos;
 
 import lombok.Getter;
 import lombok.Setter;

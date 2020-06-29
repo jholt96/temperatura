@@ -1,4 +1,4 @@
-package edge.temperatura.temperatura.payloads;
+package edge.temperatura.temperatura.pojos;
 
 import lombok.Getter;
 import lombok.Setter;

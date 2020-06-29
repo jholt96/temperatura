@@ -7,7 +7,7 @@ Purpose of Class: Provide a POJO for the signup request.
 When an ADMIN creates a new user this is the object they will create in the form. 
 */
 
-package edge.temperatura.temperatura.payloads;
+package edge.temperatura.temperatura.pojos;
 
 import java.util.Set;
 

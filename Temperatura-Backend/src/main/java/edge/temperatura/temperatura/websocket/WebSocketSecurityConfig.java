@@ -5,7 +5,7 @@ Versions: Spring Boot 2.3, Java 11.
 
 Purpose of Configuration: Security for websocket connection. 
 
-Currently Same Origin completely disabled for dev purposes. 
+Currently CORS completely disabled for dev purposes. 
 
 */
 package edge.temperatura.temperatura.websocket;
