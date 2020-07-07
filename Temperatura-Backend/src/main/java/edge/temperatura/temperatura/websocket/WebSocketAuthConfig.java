@@ -62,6 +62,7 @@ public class WebSocketAuthConfig implements WebSocketMessageBrokerConfigurer {
                 logger.info("STOMP access destination "+accessor.getDestination());
 
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    
                     if (accessor.getNativeHeader("Authorization") != null) {
 
                         String authToken = accessor.getFirstNativeHeader("Authorization");

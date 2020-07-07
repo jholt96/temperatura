@@ -149,7 +149,6 @@ public class TrucksServiceImpl {
                                       .orElseThrow(()-> new RuntimeException("Truck Does Not Exist!"));
         
         trucks.remove(hostname);
-        //delete cronjob
         truckRepository.delete(truck);
 
     }

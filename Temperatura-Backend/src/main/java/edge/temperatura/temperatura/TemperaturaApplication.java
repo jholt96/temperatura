@@ -3,7 +3,7 @@ Author: Josh Holt
 Temperatura Backend version 0.9
 Versions: Spring Boot 2.3, Java 11.
 
-TODO Clean up error Handling a bit more implement custom error handling redirect, Check Websocket Auth is working Correctly write tests. 
+TODO Check Websocket Auth is working Correctly write tests. 
 */
 
 package edge.temperatura.temperatura;

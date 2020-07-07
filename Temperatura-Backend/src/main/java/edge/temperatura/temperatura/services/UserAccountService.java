@@ -83,12 +83,6 @@ public class UserAccountService {
                     .body("User already Exists");
         }
     
-        if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("User already Exists");
-        }
-    
         Users newUser = new Users(user.getEmail(), 
                                   user.getEmail(), 
                                   passwordEncoder.encode(user.getPassword()));
