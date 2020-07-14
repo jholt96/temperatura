@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
+import { BrowserRouter as Router, Link, Route } from "react-router-dom";
 import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -9,18 +10,9 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
+      <Route exact path="/"><h1>Home</h1></Route>
+      <Route exact path="/admin"><h1>Admin</h1></Route>
     </div>
   );
 }

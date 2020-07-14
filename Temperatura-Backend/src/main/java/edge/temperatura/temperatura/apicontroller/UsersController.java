@@ -112,7 +112,7 @@ public class UsersController {
     @PreAuthorize("hasAnyRole('ADMIN','VIEWER')")
     public List<Trucks> updateFavoriteTrucksList(@PathVariable("email") String email, @PathVariable("hostname")String hostname){
 
-        if(SecurityContextHolder.getContext().getAuthentication().getName() == email){
+        if(SecurityContextHolder.getContext().getAuthentication().getName() == email) {
 
             return userAccountService.setFavoriteTrucks(email, hostname);
         }
