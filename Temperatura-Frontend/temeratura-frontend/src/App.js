@@ -8,13 +8,10 @@ import HomePage from './Components/HomePageComponent'
 
 function App() {
   var user = {token:"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzaWtqaXNoQGxpdmUuY29tIiwiaWF0IjoxNTk1NTI2NjI2LCJleHAiOjE1OTU2MTMwMjZ9.jnnCN6gmrsRjFDuT77QkpVAXIrgXAoVkrWccnXIP0Lf20RRVpcbCA4vIHOfMX_FVXXlCsgjkOgxDMGTTYAv1jw",type:"Bearer",username:"sikjish@live.com",roles:["ROLE_VIEWER","ROLE_ADMIN"]}
-  localStorage.setItem(user.username,JSON.stringify(user));
+  localStorage.setItem('user',JSON.stringify(user));
 
 return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
       <HomePage user={user}/>
       {//<Route exact path="/"><h1>Home</h1></Route>
       //<Route exact path="/admin"><h1>Admin</h1></Route>

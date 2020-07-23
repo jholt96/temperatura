@@ -141,7 +141,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
                     if(!trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).wasOverThresholdsDuringLastPoll()) {
                             
                         AlertMessage alertMessage = trucksServiceImpl.createAlert(newMessage, newtemperatureAvg, newHumidityAvg);
-                        template.convertAndSend("/topic/edge",alertMessage.toJson());
+                        template.convertAndSend("/topic/edge",alertMessage);
                     }
                 }else{
                     trucksServiceImpl.getMapOfTrucks().get(newMessage.getHostname()).setOverThresholdsDuringLastPoll(false);
@@ -151,7 +151,7 @@ public class KafkaConsumerService implements ConsumerSeekAware{
             }
 
             //now pass the kafka message on to the Websocket
-            template.convertAndSend("/topic/edge", newMessage.toJson());
+            template.convertAndSend("/topic/edge", newMessage);
 
         } catch (Exception e) {
             logger.error("unable to process message", e);

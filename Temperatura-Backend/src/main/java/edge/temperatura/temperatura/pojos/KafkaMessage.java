@@ -31,13 +31,13 @@ public class KafkaMessage {
     private float humidityFloorThreshold; 
 
     @Value("${defaultTempCeilingThreshold}")
-    private static float defaulttemperatureCeilingThreshold; 
+    private static float defaulttemperatureCeilingThreshold = 80; 
     @Value("${defaultTempFloorThreshold}")
-    private static float defaulttemperatureFloorThreshold; 
+    private static float defaulttemperatureFloorThreshold = 0; 
     @Value("${defaultHumidityCeilingThreshold}")
-    private static float defaultHumidityCeilingThreshold; 
+    private static float defaultHumidityCeilingThreshold = 50; 
     @Value("${defaultHumidityFloorThreshold}")
-    private static float defaultHumidityFloorThreshold; 
+    private static float defaultHumidityFloorThreshold = 0; 
 
     private boolean alert;
     
@@ -48,6 +48,10 @@ public class KafkaMessage {
         this.hostname = "";
         this.env = "";
         this.alert = false;
+        this.temperatureCeilingThreshold = defaulttemperatureCeilingThreshold;
+        this.temperatureFloorThreshold = defaulttemperatureFloorThreshold; 
+        this.humidityCeilingThreshold = defaultHumidityCeilingThreshold; 
+        this.humidityFloorThreshold = defaultHumidityFloorThreshold;
     }
     public KafkaMessage(float temperature, float humidity, String timestamp, String deviceName, String env, 
                         float temperatureCeilingThreshold, float temperatureFloorThreshold, float humidityCeilingThreshold, float humidityFloorThreshold) {
@@ -69,14 +73,14 @@ public class KafkaMessage {
     public String toJson(){
         return "{\"message\":{\"timestamp\": \"" + timestamp + "\"," +
         "\"hostname\": \"" + hostname + "\"," +
-        "\"temperature\": \"" + temperature + "\"," +
-        "\"env\": \"" + env + "\","+
-        "\"humidity\": \" " + humidity + "\"," +
-        "\"temperatureCeilingThreshold\": \" " + temperatureCeilingThreshold + "\"," +
-        "\"temperatureFloorThreshold\": \" " + temperatureFloorThreshold + "\"," +
-        "\"humidityCeilingThreshold\": \" " + humidityCeilingThreshold + "\"," +
-        "\"humidityFloorThreshold\": \" " + humidityFloorThreshold + "\"," +
-        "\"alert\": \" " + alert + "\"}}";
+        "\"temperature\":" + temperature + "," +
+        "\"env\":" + env + ","+
+        "\"humidity\": " + humidity + "," +
+        "\"temperatureCeilingThreshold\": " + temperatureCeilingThreshold + "," +
+        "\"temperatureFloorThreshold\":" + temperatureFloorThreshold + "," +
+        "\"humidityCeilingThreshold\":" + humidityCeilingThreshold + "," +
+        "\"humidityFloorThreshold\":" + humidityFloorThreshold + "," +
+        "\"alert\":" + alert + "}}";
     }
 
 

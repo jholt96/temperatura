@@ -21,7 +21,6 @@ const API_URL = "http://localhost:8080/api/v1/trucks";
 
 export default class HomePage extends Component{
 
-    #truckMap = new Map();
 
     constructor(props) {
         super(props);
@@ -32,6 +31,8 @@ export default class HomePage extends Component{
             currMessage: {}
         };
 
+        this.truckMap = new Map();
+
         this.componentDidMount = this.componentDidMount.bind(this);
         this.onMessage = this.onMessage.bind(this);
         this.newTrucks = this.newTrucks.bind(this);
@@ -41,13 +42,13 @@ export default class HomePage extends Component{
         //check if user object exist. if it does then get all trucks. 
         if(this.props.user) {
 
-            var config = { headers: {"Authorization" : getAuthHeader(), "X-XSRF-TOKEN": "6bd74ef7-fd33-4222-88fd-46ac67a90c59"}};
-            axios.get(API_URL + '/',config ).then((res) =>{
+            var config = { headers: {"Authorization" : getAuthHeader(), "XSRF-TOKEN":"5f4b911c-f8cd-4f89-a73d-00cdf8c13184"}};
+            axios.get(API_URL + '/', config ).then((res) =>{
                 var newTrucks = [];
                 
                 res.data.forEach(truck => {
                     newTrucks.push(new Truck(truck));
-                    this.#truckMap.set(truck.hostname,(newTrucks.length - 1))
+                    this.truckMap.set(truck.hostname,(newTrucks.length - 1))
                 });
                 this.setState({trucks:newTrucks})
             },(res) => {
@@ -61,24 +62,31 @@ export default class HomePage extends Component{
 
     }
 
-    onMessage(message) {
+    onMessage(newMessage) {
 
-        var trucks = this.state.trucks;
+        
+        if(!newMessage.alert)
+        {
+            var trucks = this.state.trucks;
 
-        const indexOfTruck = this.#truckMap.get(message.hostname);
+            const indexOfTruck = this.truckMap.get(newMessage.hostname);
+            if(indexOfTruck !== undefined) {
+                trucks[indexOfTruck].currentTemperature = newMessage.temperature;
+                trucks[indexOfTruck].currentHumidity = newMessage.humidity;
+                trucks[indexOfTruck].temperatureCeilingThreshold = newMessage.temperatureCeilingThreshold; 
+                trucks[indexOfTruck].temperatureFloorThreshold= newMessage.temperatureFloorThreshold; 
+                trucks[indexOfTruck].humidityCeilingThreshold = newMessage.humidityCeilingThreshold; 
+                trucks[indexOfTruck].humidityFloorThreshold = newMessage.humidityFloorThreshold;
+                trucks[indexOfTruck].timestamp = newMessage.timestamp;
 
-        if(indexOfTruck !== undefined) {
-            trucks[indexOfTruck].currentTemperature = message.currentTemperature;
-            trucks[indexOfTruck].currentHumidity = message.currentHumidity;
-            trucks[indexOfTruck].temperatureCeilingThreshold = message.temperatureCeilingThreshold; 
-            trucks[indexOfTruck].temperatureFloorThreshold= message.temperatureFloorThreshold; 
-            trucks[indexOfTruck].humidityCeilingThreshold = message.humidityCeilingThreshold; 
-            trucks[indexOfTruck].humidityFloorThreshold = message.humidityFloorThreshold;
-
-            this.setState({
-                trucks: trucks
-            });
+                this.setState({
+                    trucks: trucks
+                });
+            }            
+        }else{
+            //alert message
         }
+
 
 
 
@@ -96,7 +104,7 @@ export default class HomePage extends Component{
     render() {
         const trucks = this.state.trucks.slice();
         const gauges = trucks.map(truck => {
-            return <Gauge truck = {truck} key = {truck.hostname + 'gauges'}/>
+            return <Gauge truck = {truck} key = {truck.hostname + 'gauges'} truckId={truck.hostname + 'gauges'}/>
         })
 
         return (
@@ -106,7 +114,7 @@ export default class HomePage extends Component{
                 onConnect={ () => { this.setState({ clientConnected: true }) } }
                 onDisconnect={ () => { this.setState({ clientConnected: false }) } }
                 debug={ false }
-                headers={getAuthHeader()}/>
+                headers={{'Authorization': getAuthHeader()}}/>
 
                 <div>{gauges}</div>
             </div>
