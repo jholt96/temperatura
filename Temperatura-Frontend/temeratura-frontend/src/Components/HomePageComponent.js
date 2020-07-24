@@ -42,7 +42,7 @@ export default class HomePage extends Component{
         //check if user object exist. if it does then get all trucks. 
         if(this.props.user) {
 
-            var config = { headers: {"Authorization" : getAuthHeader(), "XSRF-TOKEN":"5f4b911c-f8cd-4f89-a73d-00cdf8c13184"}};
+            var config = { headers: {"Authorization" : getAuthHeader()}};
             axios.get(API_URL + '/', config ).then((res) =>{
                 var newTrucks = [];
                 
@@ -86,12 +86,6 @@ export default class HomePage extends Component{
         }else{
             //alert message
         }
-
-
-
-
-
-
 
         //if hostname exists in truck list update the truck list with the current temp and humidity and set the state. 
         //console.log(message);

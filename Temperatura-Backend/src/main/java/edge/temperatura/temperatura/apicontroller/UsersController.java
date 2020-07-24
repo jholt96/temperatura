@@ -56,13 +56,13 @@ public class UsersController {
     @Autowired
     UserAccountService userAccountService;
 
-    
+    /*
     @GetMapping(value = "/crsf")
     public String getCsrfToken(HttpServletRequest request){
         
         CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         return csrf.getToken();
-    }
+    }*/
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> loginUser(@RequestBody Signin user){

@@ -3,7 +3,8 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 
-import AuthService  from '../services/authService'
+import AuthService  from '../Services/authService'
+
 
 const required = value => {
     if (!value) {
@@ -15,7 +16,7 @@ const required = value => {
     }
   };
 
-class Login extends Component {
+export default class Login extends Component {
 
     constructor(props) {
         super(props);
@@ -48,13 +49,22 @@ class Login extends Component {
           loading: true
         });
 
-        AuthService.login(this.state.username,this.state.password).then(() => {
-          
+        AuthService.login(this.state.username,this.state.password).then((res) => {
+          console.log(res.data);
         },error => {
-
+            this.setState({
+              message: "",
+              loading: false
+            });
         });
 
 
+      }
+
+      render(){
+        return (
+          <h1>Login</h1>
+        );
       }
 
 

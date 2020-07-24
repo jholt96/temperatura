@@ -22,6 +22,7 @@ class AuthService {
 
     getCurrentUser() {
         return JSON.parse(localStorage.getItem('user'));
+        //needs to check for valid jwt token 
     }
 }
 

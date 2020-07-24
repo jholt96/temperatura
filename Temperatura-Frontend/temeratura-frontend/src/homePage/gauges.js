@@ -35,7 +35,14 @@ export default class Gauge extends Component {
             labelFontColor: '#000000',
             relativeGaugeSize: true
           });
+
     }
+    
+    componentWillUnmount() {
+        this.tempGauge.destroy();
+        this.humidityGauge.destroy();
+    }
+
     componentDidUpdate(prevProps){
             this.tempGauge.refresh(this.props.truck.currentTemperature,this.props.truck.temperatureCeilingThreshold,this.props.truck.temperatureFloorThreshold);
 

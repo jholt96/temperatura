@@ -53,42 +53,55 @@ public class WebSocketAuthConfig implements WebSocketMessageBrokerConfigurer {
 
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                try {
+                    StompHeaderAccessor accessor =
+                        MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-                StompHeaderAccessor accessor =
-                    MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+                    logger.info("************ STOMP COMMAND *****"+accessor.getCommand());
+    
+                    logger.info("STOMP access destination "+accessor.getDestination());
 
-                logger.info("************ STOMP COMMAND *****"+accessor.getCommand());
- 
-                logger.info("STOMP access destination "+accessor.getDestination());
-
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    
-                    if (accessor.getNativeHeader("Authorization") != null) {
-
-                        String authToken = accessor.getFirstNativeHeader("Authorization");
-                        logger.info(authToken);
+                    if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                         
-                        if (StringUtils.hasText(authToken) && authToken.startsWith("Bearer ")){
+                        if (accessor.getNativeHeader("Authorization") != null) {
+
+                            String authToken = accessor.getFirstNativeHeader("Authorization");
                             
-                            authToken = authToken.substring(7, authToken.length());
+                            if (StringUtils.hasText(authToken) && authToken.startsWith("Bearer ")){
+                                
+                                authToken = authToken.substring(7, authToken.length());
 
-                            String username = jwtUtils.getUserNameFromJwtToken(authToken);
+                                String username = jwtUtils.getUserNameFromJwtToken(authToken);
 
-                            if(username != null && jwtUtils.validateJwtToken(authToken)){
+                                if(username != null && jwtUtils.validateJwtToken(authToken)){
 
-                                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                                                                                                                            userDetails.getAuthorities());
-                                if(SecurityContextHolder.getContext().getAuthentication() == null){
+                                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                                                                                                                                userDetails.getAuthorities());
+                                    if(SecurityContextHolder.getContext().getAuthentication() == null){
 
-                                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                                    accessor.setUser(authentication);
-                                }                                                                                           
+                                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                                        accessor.setUser(authentication);
+                                    }                                                                                           
+                                }
                             }
                         }
+                    }else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+                        try {
+                            logger.info("Disconnected Sess : " + accessor.getSessionId());
+
+                        } catch (Exception e) {
+                            //TODO: handle exception
+                            logger.error(e.getMessage());
+                        }
+                        
                     }
+                } catch (Exception e) {
+                    //TODO: handle exception
+                    logger.error(e.getMessage());
                 }
-                return message;
+                    return message;                    
+
             }
         });
     }
