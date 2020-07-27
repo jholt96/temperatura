@@ -2,8 +2,11 @@ import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
+import { BrowserRouter as useHistory, useLocation} from "react-router-dom";
+
 
 import AuthService  from '../Services/authService'
+
 
 
 const required = value => {
@@ -16,6 +19,7 @@ const required = value => {
     }
   };
 
+
 export default class Login extends Component {
 
     constructor(props) {
@@ -27,6 +31,9 @@ export default class Login extends Component {
             loading: false,
             message: ""
         };
+        this.onChangeUsername = this.onChangeUsername.bind(this);
+        this.onChangePassword = this.onChangePassword.bind(this);
+        this.handleLogin = this.handleLogin.bind(this);
     }
 
     onChangeUsername(e) {
@@ -42,15 +49,17 @@ export default class Login extends Component {
       }
     
       handleLogin(e) {
-        e.preventDefault();
-    
         this.setState({
           message: "",
           loading: true
         });
 
         AuthService.login(this.state.username,this.state.password).then((res) => {
-          console.log(res.data);
+          console.log(res);
+          //let history = useHistory();
+
+          this.props.history.push('/');
+
         },error => {
             this.setState({
               message: "",
@@ -63,7 +72,47 @@ export default class Login extends Component {
 
       render(){
         return (
-          <h1>Login</h1>
+          <div className="loginForm">
+            <h1>Login</h1>
+            <Form>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <Input
+                  type="text"
+                  className="form-control"
+                  name="username"
+                  value={this.state.username}
+                  onChange={this.onChangeUsername}
+                  validations={[required]}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <Input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={this.state.password}
+                  onChange={this.onChangePassword}
+                  validations={[required]}
+                />
+              </div>
+
+              <div className="form-group">
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={this.handleLogin}
+                  disabled={this.state.loading}
+                >
+                  {this.state.loading && (
+                    <span className="spinner-border spinner-border-sm"></span>
+                  )}
+                  <span>Login</span>
+                </button>
+              </div>
+            </Form>
+          </div>
         );
       }
 

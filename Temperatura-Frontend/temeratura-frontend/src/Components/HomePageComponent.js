@@ -14,6 +14,9 @@ import axios from 'axios';
 import getAuthHeader from '../Services/authHeader';
 import Gauge from '../homePage/gauges';
 import Truck from '../Classes/Truck';
+import { useHistory } from "react-router-dom";
+import authService from "../Services/authService";
+
 
 
 
@@ -40,7 +43,8 @@ export default class HomePage extends Component{
 
     componentDidMount() {
         //check if user object exist. if it does then get all trucks. 
-        if(this.props.user) {
+        var user = authService.getCurrentUser();
+        if(user) {
 
             var config = { headers: {"Authorization" : getAuthHeader()}};
             axios.get(API_URL + '/', config ).then((res) =>{
@@ -52,11 +56,14 @@ export default class HomePage extends Component{
                 });
                 this.setState({trucks:newTrucks})
             },(res) => {
-                //console.log(res);
+                console.log("error");
             });
         }
         else {
+            //redirect to login
+            console.log("error");
 
+            
         }
 
 
