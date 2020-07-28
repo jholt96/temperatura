@@ -1,32 +1,26 @@
 import axios from 'axios';
-import getAuthHeader from './Services/authHeader';
-import Truck from '../Classes/Truck';
+import getAuthHeader from './authHeader';
 
+const API_URL = "http://localhost:8080/api/v1/trucks";
 
 class TrucksService {
 
     getAllTrucks() {
         var config = { headers: {"Authorization" : getAuthHeader()}};
-        axios.get(API_URL + '/', config ).then((res) =>{
-            var newTrucks = [];
-            
-            res.data.forEach(truck => {
-                newTrucks.push(new Truck(truck));
-                this.truckMap.set(truck.hostname,(newTrucks.length - 1))
-            });
-            this.setState({trucks:newTrucks})
-        },(res) => {
-            console.log("error");
+        return axios.get(API_URL + '/', config ).then((res) =>
+        {
+            return res;
+        
+        },(error) => {
+            console.log(error); 
+            return error;
         });
     }
 
     getOneTruck(hostname) {
         var config = { headers: {"Authorization" : getAuthHeader()}};
-        axios.get(API_URL + '/' + hostname, config ).then((res) =>{
-            var newTruck = res.data;  
-            this.setState({trucks:newTrucks})
-        },(res) => {
-            console.log("error");
+        return axios.get(API_URL + '/' + hostname, config ).then((res) =>{console.log(res)},(res) => {
+            console.log(res);
         });
 
     }
@@ -34,3 +28,5 @@ class TrucksService {
 
     }
 }
+
+export default new TrucksService();

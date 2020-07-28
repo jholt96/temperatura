@@ -33,7 +33,7 @@ export default class Login extends Component {
         };
         this.onChangeUsername = this.onChangeUsername.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
-        this.handleLogin = this.handleLogin.bind(this);
+        this.login = this.login.bind(this);
     }
 
     onChangeUsername(e) {
@@ -48,16 +48,15 @@ export default class Login extends Component {
         });
       }
     
-      handleLogin(e) {
+      login() {
         this.setState({
           message: "",
           loading: true
         });
-
         AuthService.login(this.state.username,this.state.password).then((res) => {
           console.log(res);
-          //let history = useHistory();
-
+          
+          this.props.handleLogin(res);
           this.props.history.push('/');
 
         },error => {
@@ -66,8 +65,6 @@ export default class Login extends Component {
               loading: false
             });
         });
-
-
       }
 
       render(){
@@ -102,7 +99,7 @@ export default class Login extends Component {
               <div className="form-group">
                 <button
                   className="btn btn-primary btn-block"
-                  onClick={this.handleLogin}
+                  onClick={this.login}
                   disabled={this.state.loading}
                 >
                   {this.state.loading && (

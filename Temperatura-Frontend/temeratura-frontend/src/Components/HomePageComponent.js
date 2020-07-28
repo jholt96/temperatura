@@ -14,16 +14,14 @@ import axios from 'axios';
 import getAuthHeader from '../Services/authHeader';
 import Gauge from '../homePage/gauges';
 import Truck from '../Classes/Truck';
-import { useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import authService from "../Services/authService";
+import trucksService from "../Services/trucksService"
 
-
-
-
-const API_URL = "http://localhost:8080/api/v1/trucks";
 
 export default class HomePage extends Component{
 
+    _isMounted = false;
 
     constructor(props) {
         super(props);
@@ -31,75 +29,122 @@ export default class HomePage extends Component{
         this.state = {
             trucks: [],
             clientConnected: false,
-            currMessage: {}
+            redirect: false
         };
 
         this.truckMap = new Map();
+        this.clientRef = null;
 
         this.componentDidMount = this.componentDidMount.bind(this);
         this.onMessage = this.onMessage.bind(this);
-        this.newTrucks = this.newTrucks.bind(this);
+        this.onConnect = this.onConnect.bind(this);
+        this.onDisconnect = this.onConnect.bind(this);
+
+
     }
 
+    componentWillUnmount() {
+        this._isMounted = false;
+        //this.clientRef.disconnect();
+      }
     componentDidMount() {
         //check if user object exist. if it does then get all trucks. 
+        this._isMounted = true;
+
         var user = authService.getCurrentUser();
         if(user) {
 
-            var config = { headers: {"Authorization" : getAuthHeader()}};
-            axios.get(API_URL + '/', config ).then((res) =>{
-                var newTrucks = [];
-                
-                res.data.forEach(truck => {
-                    newTrucks.push(new Truck(truck));
-                    this.truckMap.set(truck.hostname,(newTrucks.length - 1))
-                });
-                this.setState({trucks:newTrucks})
-            },(res) => {
-                console.log("error");
+            trucksService.getAllTrucks().then((res) =>{
+                if(res.status == 200){
+
+                    var newTrucks = [];
+                    
+                    res.data.forEach(truck => {
+                        newTrucks.push(new Truck(truck));
+                        this.truckMap.set(truck.hostname,(newTrucks.length - 1))
+                    });
+                    if(this._isMounted){
+                        this.setState({trucks:newTrucks,redirect:false})                   
+                    }
+                }else{
+                    console.log(res.status);
+                }
+  
+            },(error) => {
+                if(this._isMounted){
+                    this.setState({
+                        redirect: true
+                    });
+                }
+                if(this.state.clientConnected){
+
+                    //this.clientRef.disconnect();
+                }
+    
             });
         }
         else {
-            //redirect to login
-            console.log("error");
+            console.log('Not Authenticated. Redirecting to login');
+            if(this._isMounted){
+                this.setState({
+                    redirect: true
+                });
+            }
 
-            
+            if(this.state.clientConnected){
+
+                //this.clientRef.disconnect();
+            }
+
         }
-
 
     }
 
     onMessage(newMessage) {
 
-        
-        if(!newMessage.alert)
-        {
-            var trucks = this.state.trucks;
+        if(this.state.clientConnected){
+            if(!newMessage.alert)
+            {
+                var trucks = this.state.trucks;
 
-            const indexOfTruck = this.truckMap.get(newMessage.hostname);
-            if(indexOfTruck !== undefined) {
-                trucks[indexOfTruck].currentTemperature = newMessage.temperature;
-                trucks[indexOfTruck].currentHumidity = newMessage.humidity;
-                trucks[indexOfTruck].temperatureCeilingThreshold = newMessage.temperatureCeilingThreshold; 
-                trucks[indexOfTruck].temperatureFloorThreshold= newMessage.temperatureFloorThreshold; 
-                trucks[indexOfTruck].humidityCeilingThreshold = newMessage.humidityCeilingThreshold; 
-                trucks[indexOfTruck].humidityFloorThreshold = newMessage.humidityFloorThreshold;
-                trucks[indexOfTruck].timestamp = newMessage.timestamp;
+                const indexOfTruck = this.truckMap.get(newMessage.hostname);
+                if(indexOfTruck !== undefined) {
+                    trucks[indexOfTruck].currentTemperature = newMessage.temperature;
+                    trucks[indexOfTruck].currentHumidity = newMessage.humidity;
+                    trucks[indexOfTruck].temperatureCeilingThreshold = newMessage.temperatureCeilingThreshold; 
+                    trucks[indexOfTruck].temperatureFloorThreshold= newMessage.temperatureFloorThreshold; 
+                    trucks[indexOfTruck].humidityCeilingThreshold = newMessage.humidityCeilingThreshold; 
+                    trucks[indexOfTruck].humidityFloorThreshold = newMessage.humidityFloorThreshold;
+                    trucks[indexOfTruck].timestamp = newMessage.timestamp;
 
-                this.setState({
-                    trucks: trucks
-                });
+                    this.setState({
+                        trucks: trucks
+                    });
+                }            
+            }else{
+                //alert message
             }            
-        }else{
-            //alert message
         }
+
 
         //if hostname exists in truck list update the truck list with the current temp and humidity and set the state. 
         //console.log(message);
     }
 
-    newTrucks() {
+    handleError(error) {
+        console.log(error);
+        if(this._isMounted){
+            this.setState({
+                redirect: true
+            })                    
+        }
+    }
 
+    onConnect(){
+        this.setState({clientConnected:true});
+    }
+    onDisconnect() {
+        this.setState({ clientConnected: false });
     }
 
     render() {
@@ -109,16 +154,22 @@ export default class HomePage extends Component{
         })
 
         return (
+            !this.state.redirect ? 
             <div>
-                <SockJsClient url={"http://localhost:8080/edge"} topics={["/topic/edge"]}
-                onMessage={ this.onMessage } ref={ (client) => { this.clientRef = client }}
-                onConnect={ () => { this.setState({ clientConnected: true }) } }
-                onDisconnect={ () => { this.setState({ clientConnected: false }) } }
-                debug={ false }
-                headers={{'Authorization': getAuthHeader()}}/>
-
+                <SockJsClient url={"http://localhost:8080/edge"} 
+                    topics={["/topic/edge"]}
+                    onMessage={ this.onMessage } 
+                    ref={ (client) => { this.clientRef = client }}
+                    onConnect={ this.onConnect }
+                    onDisconnect={this.onDisconnect}
+                    autoReconnect={false}
+                    debug={ false }
+                    onConnectFailure={(error) => {this.handleError(error);}}
+                    headers={{'Authorization': getAuthHeader()}}
+                />
                 <div>{gauges}</div>
-            </div>
+            </div> :
+            <Redirect  to={{pathname: "/login"}}/>
         );
 
     }

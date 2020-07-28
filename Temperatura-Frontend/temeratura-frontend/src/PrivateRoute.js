@@ -11,7 +11,7 @@ export default function PrivateRoute({ children, ...rest }) {
       <Route
         {...rest}
         render={({ location }) =>
-          authService.getCurrentUser() != null ? (
+          this.props.user != null ? (
             children
           ) : (
             <Redirect

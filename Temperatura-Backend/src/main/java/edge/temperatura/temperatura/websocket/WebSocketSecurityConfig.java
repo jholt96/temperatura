@@ -13,6 +13,7 @@ package edge.temperatura.temperatura.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 
@@ -25,7 +26,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         try {
             messages
-                .anyMessage().authenticated();            
+            .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.DISCONNECT, SimpMessageType.OTHER).permitAll()
+            .anyMessage().authenticated();            
         } catch (Exception e) {
             //TODO: handle exception
             logger.error(e.getMessage());
@@ -38,5 +40,7 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     protected boolean sameOriginDisabled() {
         return true;
     }
+
+    
 
 }
