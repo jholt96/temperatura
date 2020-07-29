@@ -23,15 +23,15 @@ export default class NavBar extends Component {
             loggedIn = (
             <Nav.Link style={{float:"right"}} onClick={() => {this.handleLogout()}}>Logout</Nav.Link>);
         }else{
-            loggedIn = (<Nav.Link style={{float:"right"}} to="/login">Login</Nav.Link>);
+            loggedIn = (<Nav.Link id="loginNavBar" to="/login">Login</Nav.Link>);
         }
 
         return (
-            <Navbar  bg="dark" expand="lg" variant="dark">
+            <Navbar  fixed="top" bg="dark" expand="lg" variant="dark">
                 <Navbar.Brand href="/home">Temperatura</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />  
                 <Link to="/">Home</Link>
-                <Nav className="justify-content-end">{loggedIn}</Nav>
+                {loggedIn}
             </Navbar>
             
         );

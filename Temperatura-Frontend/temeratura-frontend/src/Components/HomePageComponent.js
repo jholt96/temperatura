@@ -10,7 +10,6 @@ If a message has an alert show an alert in the top right saying which truck has 
 */
 import React, { Component } from "react";
 import SockJsClient from 'react-stomp';
-import axios from 'axios';
 import getAuthHeader from '../Services/authHeader';
 import Gauge from '../homePage/gauges';
 import Truck from '../Classes/Truck';
@@ -18,6 +17,8 @@ import { Redirect } from "react-router-dom";
 import authService from "../Services/authService";
 import trucksService from "../Services/trucksService"
 
+const WSURL = "http://localhost:8080/edge";
+const TOPIC = "/topic/edge";
 
 export default class HomePage extends Component{
 
@@ -34,6 +35,8 @@ export default class HomePage extends Component{
 
         this.truckMap = new Map();
         this.clientRef = null;
+        this.socket = null;
+        this.stompClient = null;
 
         this.componentDidMount = this.componentDidMount.bind(this);
         this.onMessage = this.onMessage.bind(this);
@@ -64,7 +67,7 @@ export default class HomePage extends Component{
                         this.truckMap.set(truck.hostname,(newTrucks.length - 1))
                     });
                     if(this._isMounted){
-                        this.setState({trucks:newTrucks,redirect:false})                   
+                        this.setState({trucks:newTrucks,redirect:false})    
                     }
                 }else{
                     console.log(res.status);
@@ -100,6 +103,28 @@ export default class HomePage extends Component{
 
     }
 
+    handleError(error) {
+
+        console.log(error);
+        if(this._isMounted){
+            this.setState({
+                redirect: true
+            })                    
+        }
+    }
+
+    onConnect(){
+        if(this._isMounted){
+            this.setState({clientConnected:true});
+        }
+    }
+    onDisconnect() {
+        if(this._isMounted){
+            this.setState({ clientConnected: false });
+        }
+    }
+
+
     onMessage(newMessage) {
 
         if(this.state.clientConnected){
@@ -131,31 +156,16 @@ export default class HomePage extends Component{
         //console.log(message);
     }
 
-    handleError(error) {
-        console.log(error);
-        if(this._isMounted){
-            this.setState({
-                redirect: true
-            })                    
-        }
-    }
 
-    onConnect(){
-        this.setState({clientConnected:true});
-    }
-    onDisconnect() {
-        this.setState({ clientConnected: false });
-    }
 
     render() {
         const trucks = this.state.trucks.slice();
         const gauges = trucks.map(truck => {
             return <Gauge truck = {truck} key = {truck.hostname + 'gauges'} truckId={truck.hostname + 'gauges'}/>
         })
-
-        return (
-            !this.state.redirect ? 
-            <div>
+        var sockjsJsx = null;
+        if(this._isMounted){
+            sockjsJsx= (
                 <SockJsClient url={"http://localhost:8080/edge"} 
                     topics={["/topic/edge"]}
                     onMessage={ this.onMessage } 
@@ -167,6 +177,15 @@ export default class HomePage extends Component{
                     onConnectFailure={(error) => {this.handleError(error);}}
                     headers={{'Authorization': getAuthHeader()}}
                 />
+            );
+        }else{
+            sockjsJsx = <div></div>;
+        }
+
+        return (
+            !this.state.redirect ? 
+            <div>
+                {sockjsJsx}
                 <div>{gauges}</div>
             </div> :
             <Redirect  to={{pathname: "/login"}}/>

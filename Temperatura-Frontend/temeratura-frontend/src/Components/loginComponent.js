@@ -36,6 +36,17 @@ export default class Login extends Component {
         this.login = this.login.bind(this);
     }
 
+    componentDidMount() {
+      if(this.props.user !== null) {
+          this.props.history.push('/');
+      }
+    }
+    componentDidUpdate(){
+      if(this.props.user !== null) {
+        this.props.history.push('/');
+    }
+    }
+
     onChangeUsername(e) {
         this.setState({
           username: e.target.value
@@ -67,7 +78,7 @@ export default class Login extends Component {
         });
       }
 
-      render(){
+      render() {
         return (
           <div className="loginForm">
             <h1>Login</h1>
@@ -112,7 +123,4 @@ export default class Login extends Component {
           </div>
         );
       }
-
-
-
 }
