@@ -28,14 +28,17 @@ export default class NavBar extends Component {
 
         return (
             <Navbar fixed="top" bg="dark" expand="lg" variant="dark">
-                <Nav>
-                    <Navbar.Brand href="/home">Temperatura</Navbar.Brand>
+                <Nav className="container-fluid">
+                    <Nav.Item>
+                        <Navbar.Brand href="/home">Temperatura</Navbar.Brand>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link  to="/">Home</Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item className="ml-auto">
+                        {loggedIn}
+                    </Nav.Item>
                 </Nav>
-                <Nav className="mr-auto">
-                    <Nav.Link  to="/">Home</Nav.Link>
-                    {loggedIn}
-                </Nav>
-
             </Navbar>
             
         );

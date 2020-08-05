@@ -15,7 +15,7 @@ import Gauge from '../homePage/gauges';
 import Truck from '../Classes/Truck';
 import { Redirect } from "react-router-dom";
 import authService from "../Services/authService";
-import trucksService from "../Services/trucksService"
+import trucksService from "../Services/trucksService";
 
 const WSURL = "http://localhost:8080/edge";
 const TOPIC = "/topic/edge";
