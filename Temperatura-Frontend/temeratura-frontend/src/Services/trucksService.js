@@ -25,6 +25,10 @@ class TrucksService {
 
     }
     getAlerts(hostname) {
+        var config = { headers: {"Authorization" : getAuthHeader()}};
+        return axios.get(API_URL + '/' + hostname + "/alerts", config ).then((res) =>{console.log(res)},(res) => {
+            console.log(res);
+        });
 
     }
 }

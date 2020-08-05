@@ -36,8 +36,8 @@ public class KafkaConsumerConfig {
     @Value("${APP_NAME}")
     private String APP_NAME;
 
-    @Value("${USERNAME}")
-    private String USERNAME;
+    @Value("${KAFKA_USERNAME}")
+    private String KAFKA_USERNAME;
 
     @Value("${API_KEY}")
     private String API_KEY;
@@ -48,6 +48,9 @@ public class KafkaConsumerConfig {
     @Value("${consumerGroupId}")
     private String consumerGroupId;
 
+    @Value("${TRUSTSTORE_PASSWORD}")
+    private String TRUSTSTORE_PASSWORD;
+
 
 
     @Bean
@@ -57,17 +60,21 @@ public class KafkaConsumerConfig {
 
         props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServerAddress);
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+        props.put(SaslConfigs.SASL_MECHANISM, "SCRAM-SHA-512");
+        String saslJaasConfig = "org.apache.kafka.common.security.scram.ScramLoginModule required " + "username=\""+ KAFKA_USERNAME + "\" password=\"" + API_KEY + "\";";
+        props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
+
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+
         props.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
-        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "es-cert.jks");
-        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "password");
-        props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        String saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
-            + USERNAME + "\" password=" + API_KEY + ";";
-        props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
+        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, "es-cert.p12");
+        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, TRUSTSTORE_PASSWORD);
+
+
 
         return props;
     }

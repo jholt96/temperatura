@@ -10,7 +10,7 @@ import { NavItem } from "react-bootstrap";
 
 export default class NavBar extends Component {
 
-    handleLogout(){
+    handleLogout() {
         localStorage.removeItem('user');
         window.location.reload();
     }
@@ -21,17 +21,21 @@ export default class NavBar extends Component {
 
         if(user) {
             loggedIn = (
-            <Nav.Link style={{float:"right"}} onClick={() => {this.handleLogout()}}>Logout</Nav.Link>);
+            <Nav.Link onClick={() => {this.handleLogout()}}>Logout</Nav.Link>);
         }else{
             loggedIn = (<Nav.Link id="loginNavBar" to="/login">Login</Nav.Link>);
         }
 
         return (
-            <Navbar  fixed="top" bg="dark" expand="lg" variant="dark">
-                <Navbar.Brand href="/home">Temperatura</Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />  
-                <Link to="/">Home</Link>
-                {loggedIn}
+            <Navbar fixed="top" bg="dark" expand="lg" variant="dark">
+                <Nav>
+                    <Navbar.Brand href="/home">Temperatura</Navbar.Brand>
+                </Nav>
+                <Nav className="mr-auto">
+                    <Nav.Link  to="/">Home</Nav.Link>
+                    {loggedIn}
+                </Nav>
+
             </Navbar>
             
         );
