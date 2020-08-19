@@ -76,16 +76,15 @@ public class TrucksServiceImpl {
     public AlertMessage createAlert(KafkaMessage message, float rollingTemperatureAvg, float rollingHumidityAvg){
         Trucks tempTruck = truckRepository.findByhostname(message.getHostname()).orElseThrow(() -> new RuntimeException("This Truck Does not Exist!"));
 
-        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), rollingTemperatureAvg, rollingHumidityAvg);
+        Alerts newAlert = new Alerts(message.getTimestamp(), message.getTemperature(), message.getHumidity(), rollingTemperatureAvg, rollingHumidityAvg, tempTruck.get_id());
 
         AlertMessage newAlertMessage = new AlertMessage(message.getTimestamp(),
                                          message.getTemperature(), message.getHumidity(), rollingTemperatureAvg, rollingHumidityAvg, message.getHostname());
 
-        tempTruck.addAlert(newAlert.get_id());
+        //tempTruck.addAlert(newAlert.get_id());
         message.setAlert(true);
 
         alertRepository.save(newAlert);
-        truckRepository.save(tempTruck);
 
         return newAlertMessage;
     }
@@ -122,7 +121,7 @@ public class TrucksServiceImpl {
                         .orElseThrow(() -> new RuntimeException("Truck does not exist!"));
 
         List<Alerts> arrList = new ArrayList<Alerts>();
-        arrList = (List<Alerts>) alertRepository.findAllById(truck.getAlertsId());
+        arrList = alertRepository.findBytruckId(truck.get_id());
 
         return arrList;
     }
@@ -132,15 +131,12 @@ public class TrucksServiceImpl {
         Trucks truck = truckRepository.findByhostname(hostname)
                                       .orElseThrow(() -> new RuntimeException("Truck Does Not Exist!"));
 
-        Iterable<Alerts> itrAlerts= alertRepository.findAllById(truck.getAlertsId());
+        Iterable<Alerts> itrAlerts= alertRepository.findBytruckId(truck.get_id());
 
         itrAlerts.forEach(alert -> {
 
             alertRepository.delete(alert);
         });
-
-        truck.clearAlerts();
-        truckRepository.save(truck);
     }
     public void deleteTruck(String hostname){
 

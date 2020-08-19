@@ -64,7 +64,7 @@ public class TrucksController {
 
         trucksServiceImpl.clearAlerts(hostname);
 
-        return ResponseEntity.ok().body("Truck Deleted");
+        return ResponseEntity.ok().body("Alerts Cleared");
     }
 
     @DeleteMapping(value = "/{hostname}")

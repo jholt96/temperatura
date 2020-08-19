@@ -28,15 +28,17 @@ public class Alerts {
     private float humidity;
     private float rollingTemperatureAvg; 
     private float rollingHumidityAvg; 
+    private ObjectId truckId;
 
     public Alerts(){}
 
-    public Alerts(String timestamp, float temperature, float humidity, float rollingTemperatureAvg, float rollingHumidityAvg){
+    public Alerts(String timestamp, float temperature, float humidity, float rollingTemperatureAvg, float rollingHumidityAvg, ObjectId truckId){
         this._id = ObjectId.get();
         this.timestamp = timestamp;
         this.temperature = temperature;
         this.humidity = humidity;
         this.rollingTemperatureAvg = rollingTemperatureAvg;
         this.rollingHumidityAvg = rollingHumidityAvg;
+        this.truckId = truckId;
     }
 }
