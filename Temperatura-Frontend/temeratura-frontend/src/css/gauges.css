@@ -1,0 +1,27 @@
+.gaugeDiv {
+    width: 23%; 
+    margin: 0 auto; 
+    display: inline-block; 
+    border: solid black 2px;
+    float: left;
+}
+
+
+.gaugeTitle {
+    font-size: 1.8rem; 
+    line-height: 1.5;  
+    letter-spacing: -.05rem; 
+    text-align: center; 
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 300;
+}
+
+.gaugePic {
+    width:25%; 
+    height: 25%; 
+    text-align:'center';
+}
+.gaugeTime {
+    font-size: 20px;
+}

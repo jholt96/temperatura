@@ -16,6 +16,7 @@ import Truck from '../Classes/Truck';
 import { Redirect } from "react-router-dom";
 import authService from "../Services/authService";
 import trucksService from "../Services/trucksService";
+import '../css/homepage.css';
 
 const WSURL = "http://localhost:8080/edge";
 const TOPIC = "/topic/edge";
@@ -184,7 +185,7 @@ export default class HomePage extends Component{
 
         return (
             !this.state.redirect ? 
-            <div>
+            <div className = "home">
                 {sockjsJsx}
                 <div>{gauges}</div>
             </div> :

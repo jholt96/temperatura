@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from 'prop-types';
-import JustGage from 'justgage'
+import JustGage from 'justgage';
 
-import Truck from '../Classes/Truck';
+import '../css/gauges.css'
+
 
 
 
@@ -51,11 +52,11 @@ export default class Gauge extends Component {
 
     render(){
         return (
-        <div id= {this.props.truckId} style= {{width: "23%", margin: "0 auto", display: "inline-block", border: "solid black 2px"}}>
-            <h1>{this.props.truck.hostname}</h1>
+        <div className = "gaugeDiv" id= {this.props.truckId}>
+            <h1 className = "gaugeTitle">{this.props.truck.hostname}</h1>
             <div id = {this.props.truckId + 'temperature'}></div>
             <div id = {this.props.truckId + 'humidity'}></div>
-            <p>{this.props.truck.timestamp}</p>
+            <p className = "gaugeTime">{this.props.truck.timestamp}</p>
             <p>{this.props.truck.env}</p>
         </div>
         );
