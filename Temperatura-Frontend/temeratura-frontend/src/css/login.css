@@ -1,0 +1,17 @@
+.loginForm {
+    width: 30%;
+    display: inline-block;
+    padding-top: 10%;
+}
+
+.passwordForm {
+    text-align: left;
+    font-weight: bold;
+
+}
+
+.usernameForm {
+    text-align: left;
+    font-weight: bold;
+
+}

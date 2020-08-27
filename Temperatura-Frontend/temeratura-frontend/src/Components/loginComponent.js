@@ -3,6 +3,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { BrowserRouter as useHistory, useLocation} from "react-router-dom";
+import '../css/login.css';
 
 
 import AuthService  from '../Services/authService'
@@ -83,7 +84,7 @@ export default class Login extends Component {
           <div className="loginForm">
             <h1>Login</h1>
             <Form>
-              <div className="form-group">
+              <div className="usernameForm">
                 <label htmlFor="username">Username</label>
                 <Input
                   type="text"
@@ -95,7 +96,7 @@ export default class Login extends Component {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="passwordForm">
                 <label htmlFor="password">Password</label>
                 <Input
                   type="password"
@@ -107,7 +108,7 @@ export default class Login extends Component {
                 />
               </div>
 
-              <div className="form-group">
+              <div className="loginButton">
                 <button
                   className="btn btn-primary btn-block"
                   onClick={this.login}

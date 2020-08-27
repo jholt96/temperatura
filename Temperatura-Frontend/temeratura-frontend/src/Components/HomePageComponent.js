@@ -82,6 +82,7 @@ export default class HomePage extends Component{
                 }
                 if(this.state.clientConnected){
 
+
                     //this.clientRef.disconnect();
                 }
     
@@ -156,8 +157,6 @@ export default class HomePage extends Component{
         //if hostname exists in truck list update the truck list with the current temp and humidity and set the state. 
         //console.log(message);
     }
-
-
 
     render() {
         const trucks = this.state.trucks.slice();

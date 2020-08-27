@@ -43,6 +43,8 @@ import edge.temperatura.temperatura.pojos.KafkaMessage;
 
 @Service
 public class KafkaConsumerService implements ConsumerSeekAware{
+
+    static int NOT_VALID_THRESHOLD = -500;
     
     @Autowired
     private SimpMessagingTemplate template;
@@ -56,12 +58,24 @@ public class KafkaConsumerService implements ConsumerSeekAware{
 
     @Value("${taskTimeForAlertCheckInMinutes}")
     private short taskTimeForAlertCheck;
+
+    
+    @Value("${defaultTempCeilingThreshold}")
+    private float defaulttemperatureCeilingThreshold; 
+    @Value("${defaultTempFloorThreshold}")
+    private float defaulttemperatureFloorThreshold; 
+    @Value("${defaultHumidityCeilingThreshold}")
+    private float defaultHumidityCeilingThreshold; 
+    @Value("${defaultHumidityFloorThreshold}")
+    private float defaultHumidityFloorThreshold; 
     
     private boolean checkIfPastThreshold(float rollingAvg, float ceilingThreshold, float floorThreshold){
         return (floorThreshold >= rollingAvg || rollingAvg >= ceilingThreshold);
     }
 
     private void createTask(KafkaMessage newMessage ){
+
+
         try {
             executor.schedule(() -> {
 
@@ -118,6 +132,13 @@ public class KafkaConsumerService implements ConsumerSeekAware{
 
     @KafkaListener(topics="${kafkaTopic}")
     public void consume(@Payload KafkaMessage newMessage) {
+
+        if(newMessage.getTemperatureCeilingThreshold() == NOT_VALID_THRESHOLD){
+            newMessage.setTemperatureCeilingThreshold(defaulttemperatureCeilingThreshold);
+            newMessage.setTemperatureFloorThreshold(defaulttemperatureFloorThreshold);
+            newMessage.setHumidityCeilingThreshold(defaultHumidityCeilingThreshold);
+            newMessage.setHumidityFloorThreshold(defaultHumidityFloorThreshold);            
+        }
 
         try {
             if(trucksServiceImpl.getMapOfTrucks().containsKey(newMessage.getHostname())){

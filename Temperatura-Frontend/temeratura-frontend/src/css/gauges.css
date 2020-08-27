@@ -9,6 +9,7 @@
 
 .gaugeTitle {
     font-size: 1.8rem; 
+    font-weight: bold;
     line-height: 1.5;  
     letter-spacing: -.05rem; 
     text-align: center; 
@@ -24,4 +25,11 @@
 }
 .gaugeTime {
     font-size: 20px;
+}
+
+.gaugeEnv{  
+    display:inherit ;
+     float:left;
+     font-weight: bold;
+     text-align: left;
 }

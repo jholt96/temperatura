@@ -19,17 +19,29 @@ class TrucksService {
 
     getOneTruck(hostname) {
         var config = { headers: {"Authorization" : getAuthHeader()}};
-        return axios.get(API_URL + '/' + hostname, config ).then((res) =>{console.log(res)},(res) => {
-            console.log(res);
+        return axios.get(API_URL + '/' + hostname, config ).then((res) => {
+            return res;
+        },(error)=>{
+            return error;
         });
 
     }
+    clearAlerts(hostname) {
+        var config = { headers: {"Authorization" : getAuthHeader()}};
+        return axios.delete(API_URL + '/' + hostname + "/alerts/clear", config ).then((res) => {
+            return res;
+        },(error)=>{
+            return error;
+        });
+    }
+
     getAlerts(hostname) {
         var config = { headers: {"Authorization" : getAuthHeader()}};
-        return axios.get(API_URL + '/' + hostname + "/alerts", config ).then((res) =>{console.log(res)},(res) => {
-            console.log(res);
+        return axios.get(API_URL + '/' + hostname + "/alerts", config ).then((res) => {
+            return res;
+        },(error)=>{
+            return error;
         });
-
     }
 }
 

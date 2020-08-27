@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import PropTypes from 'prop-types';
 import JustGage from 'justgage';
+import Alerts from './Alerts.js';
+import Button from 'react-bootstrap/Button';
+
 
 import '../css/gauges.css'
 
@@ -8,6 +10,18 @@ import '../css/gauges.css'
 
 
 export default class Gauge extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            popupToggle: false
+        };
+
+        this.onGaugeClick = this.onGaugeClick.bind(this);
+
+        const refTime = React.createRef();
+    }
 
     componentDidMount() {
 
@@ -50,14 +64,39 @@ export default class Gauge extends Component {
             this.humidityGauge.refresh(this.props.truck.currentHumidity,this.props.truck.humidityCeilingThreshold,this.props.truck.humidityFloorThreshold);
     }
 
+
+    onGaugeClick() {
+
+        this.setState({
+            popupToggle: !this.state.popupToggle
+        });
+
+    }
+
     render(){
+        var date = null;
+
+        if(this.props.truck.timestamp === ""){
+            date = new Date();
+        }else{
+
+            date = new Date(this.props.truck.timestamp);
+        }
         return (
         <div className = "gaugeDiv" id= {this.props.truckId}>
-            <h1 className = "gaugeTitle">{this.props.truck.hostname}</h1>
+            {this.state.popupToggle ? <Alerts hostname={this.props.truck.hostname} onClick={this.onGaugeClick}/>: null}
+
+            <div>
+                <h1 className = "gaugeTitle">{this.props.truck.hostname}</h1>
+            </div>
             <div id = {this.props.truckId + 'temperature'}></div>
             <div id = {this.props.truckId + 'humidity'}></div>
-            <p className = "gaugeTime">{this.props.truck.timestamp}</p>
-            <p>{this.props.truck.env}</p>
+            <div style={{display:"inline"}}>
+            <p ref={this.refTime} className = "gaugeTime">{date.toLocaleString()}  </p> 
+            <p className = "gaugeEnv"> ENV: {this.props.truck.env} </p>   
+            <Button variant="primary" style={{ display: 'inherit', float:'right'}} onClick={this.onGaugeClick}> Alerts </Button>           
+            </div>
+
         </div>
         );
     }

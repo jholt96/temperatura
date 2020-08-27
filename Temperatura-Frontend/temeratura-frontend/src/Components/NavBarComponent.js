@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { NavItem } from "react-bootstrap";
+import '../css/NavBar.css';
 
 
 
@@ -27,7 +28,7 @@ export default class NavBar extends Component {
         }
 
         return (
-            <Navbar fixed="top" bg="dark" expand="lg" variant="dark">
+            <Navbar className="navbar" fixed="top" bg="dark" expand="lg" variant="dark">
                 <Nav className="container-fluid">
                     <Nav.Item>
                         <Navbar.Brand href="/home">Temperatura</Navbar.Brand>

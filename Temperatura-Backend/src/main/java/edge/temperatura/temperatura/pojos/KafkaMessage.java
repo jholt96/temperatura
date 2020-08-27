@@ -10,15 +10,16 @@ The messages are deserialized in json and then turned into this object.
 */
 package edge.temperatura.temperatura.pojos;
 
-import org.springframework.beans.factory.annotation.Value;
 
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 public class KafkaMessage {
-    
+
+    static int NOT_VALID_THRESHOLD = -500;
     private String timestamp;
     private float temperature;
     private float humidity;
@@ -30,15 +31,6 @@ public class KafkaMessage {
     private float humidityCeilingThreshold; 
     private float humidityFloorThreshold; 
 
-    @Value("${defaultTempCeilingThreshold}")
-    private static float defaulttemperatureCeilingThreshold = 80; 
-    @Value("${defaultTempFloorThreshold}")
-    private static float defaulttemperatureFloorThreshold = 0; 
-    @Value("${defaultHumidityCeilingThreshold}")
-    private static float defaultHumidityCeilingThreshold = 50; 
-    @Value("${defaultHumidityFloorThreshold}")
-    private static float defaultHumidityFloorThreshold = 0; 
-
     private boolean alert;
     
     public KafkaMessage(){
@@ -48,10 +40,10 @@ public class KafkaMessage {
         this.hostname = "";
         this.env = "";
         this.alert = false;
-        this.temperatureCeilingThreshold = defaulttemperatureCeilingThreshold;
-        this.temperatureFloorThreshold = defaulttemperatureFloorThreshold; 
-        this.humidityCeilingThreshold = defaultHumidityCeilingThreshold; 
-        this.humidityFloorThreshold = defaultHumidityFloorThreshold;
+        this.temperatureCeilingThreshold = NOT_VALID_THRESHOLD;
+        this.temperatureFloorThreshold = NOT_VALID_THRESHOLD; 
+        this.humidityCeilingThreshold = NOT_VALID_THRESHOLD; 
+        this.humidityFloorThreshold = NOT_VALID_THRESHOLD;
     }
     public KafkaMessage(float temperature, float humidity, String timestamp, String deviceName, String env, 
                         float temperatureCeilingThreshold, float temperatureFloorThreshold, float humidityCeilingThreshold, float humidityFloorThreshold) {
