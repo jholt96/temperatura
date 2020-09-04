@@ -29,7 +29,7 @@ export default class Gauge extends Component {
           id: this.props.truckId + 'temperature',
           label: 'Temperature',
           min: 0,
-          max: 0,
+          max: 100,
           counter: true,
           value: 0,
           decimals : 2,
@@ -41,8 +41,8 @@ export default class Gauge extends Component {
         this.humidityGauge = new JustGage({
             id: this.props.truckId + 'humidity',
             label: 'Humidity',
-            min: 20,
-            max: 80,
+            min: 0,
+            max: 100,
             counter: true,
             value: 0,
             decimals : 2,
@@ -59,9 +59,9 @@ export default class Gauge extends Component {
     }
 
     componentDidUpdate(prevProps){
-            this.tempGauge.refresh(this.props.truck.currentTemperature,this.props.truck.temperatureCeilingThreshold,this.props.truck.temperatureFloorThreshold);
+            this.tempGauge.refresh(this.props.truck.currentTemperature);
 
-            this.humidityGauge.refresh(this.props.truck.currentHumidity,this.props.truck.humidityCeilingThreshold,this.props.truck.humidityFloorThreshold);
+            this.humidityGauge.refresh(this.props.truck.currentHumidity);
     }
 
 
