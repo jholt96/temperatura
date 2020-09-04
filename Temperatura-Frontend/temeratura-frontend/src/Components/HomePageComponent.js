@@ -149,7 +149,8 @@ export default class HomePage extends Component{
                     });
                 }            
             }else{
-                //alert message
+                alert(newMessage.alert.hostname + " has been over the thresholds set with an avg temperature of " 
+                    + newMessage.alert.rollingTemperatureAvg + " and an avg humidity of " + newMessage.alert.rollingHumidityAvg);
             }            
         }
 
