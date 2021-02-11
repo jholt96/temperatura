@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: edgehub-db
+  name: edgehub-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgehub-db
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: edgehub-db
+    spec:
+      containers:
+      - image: backend
+        name: backend
+        resources: {}
+status: {}

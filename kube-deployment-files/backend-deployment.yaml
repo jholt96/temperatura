@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: edgehub-backend
+  name: edgehub-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgehub-backend
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: edgehub-backend
+    spec:
+      containers:
+      - image: backend
+        name: backend
+        resources: {}
